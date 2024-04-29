@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
+import jwt from "jsonwebtoken";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/User";
-import jwt from "jsonwebtoken";
 import { checkUserService, hashPassword } from "../validation/users";
 import {
   LoginError,
@@ -12,31 +12,36 @@ import {
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";
 
+import multer from "multer";
+
+const upload = multer({ dest: "./" });
+
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
 
 class UserController {
   async signUp(req: Request, res: Response) {
+    const check: any = checkUserService(req.body);
+    if (check?.length > 0) {
+      throw new ValidationError(check[0].message);
+    }
+
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const check: any = checkUserService(req.body);
-
-      if (check?.length > 0) {
-        throw new ValidationError(check[0].message);
-      }
-
-      const { email, password } = req.body;
+      const { email, password, userName, displayName } = req.body;
       const isUserExist = await userRepository.findOneBy({
         email,
       });
+
       if (isUserExist) {
-        throw new ExistingUserError("Такий корисутвач вже існує");
+        throw new ExistingUserError("User already exists");
       }
 
       const hashedPassword = hashPassword(password);
       const user = new Users();
       user.email = email;
       user.password = hashedPassword;
+      user.userName = userName;
+      user.displayName = displayName;
 
       await userRepository.save(user);
 

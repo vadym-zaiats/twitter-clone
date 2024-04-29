@@ -25,9 +25,12 @@ export class Users {
   @Column()
   displayName: string;
 
-  @OneToMany(() => Posts, (post) => post.author)
-  posts: Posts[];
+  @Column({ type: "longblob", nullable: true })
+  photo: Buffer;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createDate: Date;
+
+  @OneToMany(() => Posts, (post) => post.author)
+  posts: Posts[];
 }

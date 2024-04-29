@@ -1,4 +1,16 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
+const fs = require("fs");
 //create user
+
+const photoData = fs.readFileSync("./nodejs.png");
+
+// Використовуємо дані зображення для створення Blob
+const photoBlob = new Blob([photoData], { type: "image/png" });
+
+// Створюємо файл з Blob
+const photoFile = new File([photoBlob], "photo.png");
+
+console.log(photoFile);
 
 fetch("http://localhost:8000/api/auth/register", {
   method: "POST",
@@ -9,6 +21,9 @@ fetch("http://localhost:8000/api/auth/register", {
     email: "bobj@yopmail.com",
     password: "q123456",
     confirmPassword: "q123456",
+    userName: "User Name",
+    displayName: "Display Name",
+    // photo: photoFile,
   }),
 })
   .then((response) => response.text())
