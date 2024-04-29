@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "target": "es2021",
+      "outDir": "dist",
+      "module":"NodeNext",
+      "moduleResolution": "NodeNext",
+      "strictNullChecks": true,
+      "esModuleInterop": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+    }
+  }
