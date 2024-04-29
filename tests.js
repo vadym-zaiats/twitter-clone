@@ -18,7 +18,7 @@ fetch("http://localhost:8000/api/auth/register", {
     "Content-Type": "application/json",
   },
   body: JSON.stringify({
-    email: "bobj@yopmail.com",
+    email: "bodbrj@yopmail.com",
     password: "q123456",
     confirmPassword: "q123456",
     userName: "User Name",

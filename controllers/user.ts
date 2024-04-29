@@ -1,5 +1,6 @@
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
+import fs from "fs";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/User";
 import { checkUserService, hashPassword } from "../validation/users";
@@ -32,13 +33,12 @@ class UserController {
         throw new ExistingUserError("User already exists");
       }
 
-      const hashedPassword = hashPassword(password);
       const user = new Users();
       user.email = email;
-      user.password = hashedPassword;
+      user.password = hashPassword(password);
       user.userName = userName;
       user.displayName = displayName;
-      user.photo = req.file?.fieldname ?? "";
+      // user.photo = Buffer;
 
       await userRepository.save(user);
 
