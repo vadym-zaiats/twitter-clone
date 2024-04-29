@@ -19,16 +19,6 @@ export class Posts {
   @Column()
   text: string;
 
-  @Column({
-    type: "enum",
-    enum: Genre,
-    default: Genre.OTHER,
-  })
-  genre: Genre;
-
-  @Column({ type: "boolean", default: true })
-  isPrivate: boolean;
-
   @ManyToOne(() => Users, (user) => user.posts)
   author: Users;
 

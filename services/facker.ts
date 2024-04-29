@@ -4,7 +4,6 @@ import { Posts, Genre } from "../db/entity/Posts";
 import { AppDataSource } from "../db/data-source";
 import { type DataSource } from "typeorm";
 import { hashPassword } from "../validation/users";
-import { Channel } from "../db/entity/User";
 
 // create users
 export const generateUsers = (count: number): Users[] => {
@@ -13,10 +12,6 @@ export const generateUsers = (count: number): Users[] => {
     const user = new Users();
     user.email = faker.internet.email();
     user.password = hashPassword("q123456");
-    user.notificationChannel = faker.random.arrayElement([
-      Channel.ALERT,
-      Channel.LOG,
-    ]);
     user.sendNotification = faker.random.boolean();
     users.push(user);
   }

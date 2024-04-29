@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import bodyParser from "body-parser";
-import UserController from "../controllers/user";
 import passport from "passport";
+import UserController from "../controllers/user";
 
 class UserRouter {
   router: Router;

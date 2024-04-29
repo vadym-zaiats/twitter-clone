@@ -1,6 +1,6 @@
-Backend for nano twitter, Use elephantSQL
+Twitter clone, use AWS SQL
 
-Path to Doc: /api-docs
+Path to Doc: /api/docs
 
 In services folder: ts-node facker - create fake users with def pass q123456
 

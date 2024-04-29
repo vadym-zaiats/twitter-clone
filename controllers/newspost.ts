@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
-import IoService from "../services/io";
+// import IoService from "../services/io";
 import { checkPostService } from "../validation/posts";
 import { Posts } from "../db/entity/Posts";
 import { Users } from "../db/entity/User";
@@ -95,47 +95,45 @@ class NewsPostController {
         throw new Error("Користувача з таким email не знайдено");
       }
 
-      const { title, text, genre, isPrivate } = req.body;
+      const { title, text } = req.body;
       const post = new Posts();
       post.title = title;
       post.text = text;
-      post.genre = genre;
-      post.isPrivate = isPrivate;
       post.author = user;
 
-      const alertUsers = await userRepository.find({
-        where: {
-          sendNotification: true,
-        },
-      });
+      // const alertUsers = await userRepository.find({
+      //   where: {
+      //     sendNotification: true,
+      //   },
+      // });
 
-      const filteredAlertUsers = alertUsers.filter(
-        (alertUser) => alertUser.email !== user.email
-      );
+      // const filteredAlertUsers = alertUsers.filter(
+      //   (alertUser) => alertUser.email !== user.email
+      // );
 
-      const messages = filteredAlertUsers
-        .map((alertUser) => {
-          if (alertUser.notificationChannel) {
-            return {
-              userEmail: alertUser.email,
-              channel: alertUser.notificationChannel,
-            };
-          }
-          return null;
-        })
-        .filter((message) => message !== null);
+      // const messages = filteredAlertUsers
+      //   .map((alertUser) => {
+      //     if (alertUser.notificationChannel) {
+      //       return {
+      //         userEmail: alertUser.email,
+      //         channel: alertUser.notificationChannel,
+      //       };
+      //     }
+      //     return null;
+      //   })
+      //   .filter((message) => message !== null);
 
-      console.log("messages", messages);
+      // console.log("messages", messages);
 
       await postRepository.save(post);
 
       // SOCKET IO
-      messages.forEach((message) => {
-        IoService.io.emit("newpost", {
-          userEmail: message?.userEmail,
-          log: message?.channel,
-        });
-      });
+      // messages.forEach((message) => {
+      //   IoService.io.emit("newpost", {
+      //     userEmail: message?.userEmail,
+      //     log: message?.channel,
+      //   });
+      // });
 
       return res.status(200).json(post);
     } catch (error) {
@@ -150,23 +148,17 @@ class NewsPostController {
     }
 
     const id = parseInt(req.params.id);
-    const { title, text, genre, isPrivate } = req.body;
+    const { title, text } = req.body;
     try {
       const post = await postRepository.findOne({ where: { id } });
       if (!post) {
-        throw new NewspostsServiceError(`Посту з ${id} не існує`);
+        throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
       }
       if (title !== undefined) {
         post.title = title;
       }
       if (text !== undefined) {
         post.text = text;
-      }
-      if (genre !== undefined) {
-        post.genre = genre;
-      }
-      if (isPrivate !== undefined) {
-        post.isPrivate = isPrivate;
       }
       await postRepository.save(post);
 
@@ -182,7 +174,7 @@ class NewsPostController {
     try {
       const post = await postRepository.findOne({ where: { id } });
       if (!post) {
-        throw new NewspostsServiceError(`Посту з ${id} не існує`);
+        throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
       }
       await postRepository
         .createQueryBuilder()
@@ -191,7 +183,7 @@ class NewsPostController {
         .where("id = :id", { id })
         .execute();
 
-      return res.status(200).json({ message: `Пост з id: ${id} видалено` });
+      return res.status(200).json({ message: `Post id: ${id} deleted` });
     } catch (error) {
       errorHandler(error, req, res);
     }

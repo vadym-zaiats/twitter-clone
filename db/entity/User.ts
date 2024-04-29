@@ -7,11 +7,6 @@ import {
 } from "typeorm";
 import { Posts } from "./Posts";
 
-export enum Channel {
-  LOG = "log",
-  ALERT = "alert",
-}
-
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn()
@@ -24,15 +19,11 @@ export class Users {
   @Column()
   password: string;
 
-  @Column({ type: "boolean", default: false })
-  sendNotification: boolean;
+  @Column()
+  userName: string;
 
-  @Column({
-    type: "enum",
-    enum: Channel,
-    default: Channel.LOG,
-  })
-  notificationChannel: Channel;
+  @Column()
+  displayName: string;
 
   @OneToMany(() => Posts, (post) => post.author)
   posts: Posts[];
