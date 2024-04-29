@@ -12,10 +12,6 @@ import {
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";
 
-import multer from "multer";
-
-const upload = multer({ dest: "./" });
-
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
 
@@ -42,6 +38,7 @@ class UserController {
       user.password = hashedPassword;
       user.userName = userName;
       user.displayName = displayName;
+      user.photo = req.file?.fieldname ?? "";
 
       await userRepository.save(user);
 

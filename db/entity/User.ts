@@ -25,8 +25,8 @@ export class Users {
   @Column()
   displayName: string;
 
-  @Column({ type: "longblob", nullable: true })
-  photo: Buffer;
+  @Column({ nullable: true })
+  photo: string;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createDate: Date;
