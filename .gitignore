@@ -1,4 +1,5 @@
 # dependencies
+/imgs
 /node_modules
 package-lock.json
 /.pnp

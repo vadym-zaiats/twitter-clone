@@ -5,7 +5,6 @@ import cors from "cors";
 import passport from "passport";
 import swaggerJSDoc from "swagger-jsdoc";
 import * as dotenv from "dotenv";
-import fileUpload from "express-fileupload";
 import newspostsConfigs from "./routes/newspost";
 import userConfigs from "./routes/user";
 import { errorHandler } from "./services/errorHandler";
@@ -58,7 +57,6 @@ class Server {
   private configureMiddleware(): void {
     this.app.use(cors());
     passport.use(bearerStrategy);
-    this.app.use(fileUpload());
   }
 
   private configureRoutes(): void {

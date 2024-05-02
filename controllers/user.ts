@@ -23,32 +23,22 @@ class UserController {
     }
 
     try {
-      const { email, password, userName, displayName, photo } = req.body;
+      const { email, password, userName, displayName } = req.body;
       const isUserExist = await userRepository.findOneBy({
         email,
       });
-
-      console.log("PHOTO DATA: ", photo.data);
-
       if (isUserExist) {
         throw new ExistingUserError("User already exists");
       }
-
       const user = new Users();
       user.email = email;
       user.password = hashPassword(password);
       user.userName = userName;
       user.displayName = displayName;
-      if (photo) {
-        user.photo = photo.data;
-      }
-
       await userRepository.save(user);
-
       const token = jwt.sign({ email, password }, "secret", {
         expiresIn: "1h",
       });
-
       return res.status(201).json({ token });
     } catch (error) {
       errorHandler(error, req, res);
