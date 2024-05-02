@@ -7,12 +7,24 @@ import UserController from "../controllers/user";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const dir = "imgs/users";
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+    console.log("file", file);
+
+    if (file.fieldname === "photo") {
+      const dir = "imgs/users/photo";
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      cb(null, dir);
     }
-    cb(null, dir);
+    if (file.fieldname === "background") {
+      const dir = "imgs/users/background";
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      cb(null, dir);
+    }
   },
+
   filename: function (req, file, cb) {
     cb(null, file.originalname);
   },
@@ -33,7 +45,10 @@ class UserRouter {
 
     this.router.post(
       "/register",
-      upload.single("photo"),
+      upload.fields([
+        { name: "photo", maxCount: 1 },
+        { name: "background", maxCount: 1 },
+      ]),
       UserController.signUp
     );
 
