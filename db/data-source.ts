@@ -15,10 +15,4 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
   entities: [Users, Posts],
-  migrations: [
-    process.env.NODE_ENV !== "production"
-      ? "db/migration/**/*.ts"
-      : "migration/**/*.js",
-  ],
-  subscribers: [],
 });

@@ -1,10 +1,11 @@
+// import IoService from "./services/io";
+// import swaggerUi from "swagger-ui-express";
 import express, { type Express } from "express";
 import cors from "cors";
 import passport from "passport";
 import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
 import * as dotenv from "dotenv";
-// import IoService from "./services/io";
+import fileUpload from "express-fileupload";
 import newspostsConfigs from "./routes/newspost";
 import userConfigs from "./routes/user";
 import { errorHandler } from "./services/errorHandler";
@@ -57,17 +58,18 @@ class Server {
   private configureMiddleware(): void {
     this.app.use(cors());
     passport.use(bearerStrategy);
+    this.app.use(fileUpload());
   }
 
   private configureRoutes(): void {
     this.app.use("/api/", userConfigs);
     this.app.use("/api/auth/", userConfigs);
     this.app.use("/api/newsposts/", newspostsConfigs);
-    this.app.use(
-      "/api/docs",
-      swaggerUi.serve,
-      swaggerUi.setup(swaggerDocument)
-    );
+    // this.app.use(
+    //   "/api/docs",
+    //   swaggerUi.serve,
+    //   swaggerUi.setup(swaggerDocument)
+    // );
   }
 
   private configureErrorHandling(): void {

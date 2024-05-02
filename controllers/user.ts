@@ -1,6 +1,5 @@
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
-import fs from "fs";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/User";
 import { checkUserService, hashPassword } from "../validation/users";
@@ -24,10 +23,12 @@ class UserController {
     }
 
     try {
-      const { email, password, userName, displayName } = req.body;
+      const { email, password, userName, displayName, photo } = req.body;
       const isUserExist = await userRepository.findOneBy({
         email,
       });
+
+      console.log("PHOTO DATA: ", photo.data);
 
       if (isUserExist) {
         throw new ExistingUserError("User already exists");
@@ -38,12 +39,14 @@ class UserController {
       user.password = hashPassword(password);
       user.userName = userName;
       user.displayName = displayName;
-      // user.photo = Buffer;
+      if (photo) {
+        user.photo = photo.data;
+      }
 
       await userRepository.save(user);
 
       const token = jwt.sign({ email, password }, "secret", {
-        expiresIn: "1h", // Термін дії токена
+        expiresIn: "1h",
       });
 
       return res.status(201).json({ token });
@@ -64,9 +67,11 @@ class UserController {
       if (!loginUser || loginUser?.password !== hashedPassword) {
         throw new LoginError("Невірний email або пароль");
       }
+
       const token = jwt.sign(req.body, "secret", {
         expiresIn: "1h", // Термін дії токена
       });
+
       return res.status(200).json({ token });
     } catch (error) {
       errorHandler(error, req, res);
@@ -77,10 +82,10 @@ class UserController {
     try {
       if (req.user) {
         const decodedData = req.user as { email: string };
+
         if (!decodedData) {
           throw new LoginError("токен відсутній або сд сплив");
         }
-        console.log(decodedData);
 
         return res.json(decodedData.email);
       }
@@ -92,17 +97,14 @@ class UserController {
   async getUsersPosts(req: Request, res: Response) {
     try {
       const userId = parseInt(req.params.userId);
-      // const post = await postRepository.findOne({
-      //   where: { id },
-      //   relations: ["author"],
-      // });
       const posts = await postsRepository.find({
         where: { author: { id: userId } },
       });
-      //
+
       if (!posts) {
         throw new NewspostsServiceError(`getPostByUser ERROR`);
       }
+
       return res.status(200).json(posts);
     } catch (error) {
       errorHandler(error, req, res);

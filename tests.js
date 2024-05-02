@@ -1,31 +1,28 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
+const FormData = require("form-data");
 const fs = require("fs");
-//create user
 
-const photoData = fs.readFileSync("./nodejs.png");
+const photoData = fs.readFileSync("./nodejs0.png");
 
-// Використовуємо дані зображення для створення Blob
-const photoBlob = new Blob([photoData], { type: "image/png" });
+// Створюємо об'єкт FormData
+var formData = new FormData();
 
-// Створюємо файл з Blob
-const photoFile = new File([photoBlob], "photo.png");
+// Додаємо дані до об'єкта FormData
+formData.append("email", "tesdfftsf@yopmail.com");
+formData.append("password", "q123456");
+formData.append("confirmPassword", "q123456");
+formData.append("userName", "User Name");
+formData.append("displayName", "Display Name");
+formData.append("photo", photoData);
 
-console.log(photoFile);
-
+// Відправляємо запит на сервер
 fetch("http://localhost:8000/api/auth/register", {
   method: "POST",
+  body: formData,
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "multipart/form-data", // Додано заголовок Content-Type
   },
-  body: JSON.stringify({
-    email: "bodbrj@yopmail.com",
-    password: "q123456",
-    confirmPassword: "q123456",
-    userName: "User Name",
-    displayName: "Display Name",
-    // photo: photoFile,
-  }),
 })
   .then((response) => response.text())
-  .then((result) => console.log("created user", result))
+  .then((result) => console.log("USER CREATE RESULT: ", result))
   .catch((error) => console.error(error));

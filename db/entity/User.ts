@@ -25,8 +25,8 @@ export class Users {
   @Column()
   displayName: string;
 
-  @Column("mediumblob")
-  photo: Express.Multer.File;
+  @Column({ type: "mediumblob", nullable: true })
+  photo: Buffer;
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createDate: Date;
