@@ -31,7 +31,6 @@ class UserController {
         throw new ExistingUserError("User already exists");
       }
       const photoPath = req.file ? req.file.path : null;
-      console.log("photoPath!!!", photoPath);
 
       const user = new Users();
       user.email = email;

@@ -28,6 +28,9 @@ export class Users {
   @Column({ nullable: true })
   photo: string;
 
+  @Column({ nullable: true })
+  background: string;
+
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createDate: Date;
 
