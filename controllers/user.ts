@@ -30,15 +30,24 @@ class UserController {
       if (isUserExist) {
         throw new ExistingUserError("User already exists");
       }
+      const photoPath = req.file ? req.file.path : null;
+      console.log("photoPath!!!", photoPath);
+
       const user = new Users();
       user.email = email;
       user.password = hashPassword(password);
       user.userName = userName;
       user.displayName = displayName;
+      if (photoPath) {
+        user.photo = photoPath;
+      }
+
       await userRepository.save(user);
+
       const token = jwt.sign({ email, password }, "secret", {
         expiresIn: "1h",
       });
+
       return res.status(201).json({ token });
     } catch (error) {
       errorHandler(error, req, res);

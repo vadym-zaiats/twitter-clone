@@ -4,6 +4,7 @@ import passport from "passport";
 import multer from "multer";
 import fs from "fs";
 import UserController from "../controllers/user";
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = "imgs/users";
