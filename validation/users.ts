@@ -5,6 +5,8 @@ export const validateService = new Validator();
 
 export const userSchema = {
   email: { type: "email" },
+  userName: { type: "string", min: 2 },
+  displayName: { type: "string", min: 2 },
   password: { type: "string", min: 6 },
   confirmPassword: { type: "equal", field: "password" },
 };

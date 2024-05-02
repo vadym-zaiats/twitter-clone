@@ -7,20 +7,11 @@ import NewsPostController from "../controllers/newspost";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    if (file.fieldname === "photo") {
-      const dir = "imgs/users/photo";
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      cb(null, dir);
+    const dir = "imgs/posts/pictures";
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-    if (file.fieldname === "background") {
-      const dir = "imgs/users/background";
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      cb(null, dir);
-    }
+    cb(null, dir);
   },
 
   filename: function (req, file, cb) {
@@ -46,6 +37,7 @@ class PostRouter {
       .get(NewsPostController.getAllPosts)
       .post(
         passport.authenticate("bearer", { session: false }),
+        upload.single("picture"),
         NewsPostController.createNewPost
       );
 

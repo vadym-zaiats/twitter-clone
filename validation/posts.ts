@@ -5,8 +5,6 @@ export const validateService = new Validator();
 export const postSchema = {
   title: { type: "string", min: 1, max: 50 },
   text: { type: "string", min: 1, max: 256 },
-  genre: { type: "string", enum: ["Politic", "Business", "Sport", "Other"] },
-  isPrivate: { type: "boolean" },
 };
 
 export const checkPostService = validateService.compile(postSchema);

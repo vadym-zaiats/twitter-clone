@@ -13,6 +13,7 @@ import {
 } from "../services/errorHandler";
 import { type DecodedToken } from "../interfaces/interfaces";
 import { errorHandler } from "../services/errorHandler";
+import { log } from "console";
 
 const postRepository = AppDataSource.getRepository(Posts);
 const userRepository = AppDataSource.getRepository(Users);
@@ -65,7 +66,10 @@ class NewsPostController {
 
   async createNewPost(req: Request, res: Response) {
     try {
+      console.log("createNewPost!!! req.body", req.body);
+
       const check: any = checkPostService(req.body);
+
       if (check?.length > 0) {
         throw new ValidationError(check[0].message);
       }
@@ -95,11 +99,16 @@ class NewsPostController {
         throw new Error("Користувача з таким email не знайдено");
       }
 
+      const picturePath = req.file ? req.file.path : null;
+
       const { title, text } = req.body;
       const post = new Posts();
       post.title = title;
       post.text = text;
       post.author = user;
+      if (picturePath) {
+        post.picture = picturePath;
+      }
 
       // const alertUsers = await userRepository.find({
       //   where: {

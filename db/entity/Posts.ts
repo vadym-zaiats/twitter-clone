@@ -19,6 +19,9 @@ export class Posts {
   @Column()
   text: string;
 
+  @Column({ nullable: true })
+  picture: string;
+
   @ManyToOne(() => Users, (user) => user.posts)
   author: Users;
 
