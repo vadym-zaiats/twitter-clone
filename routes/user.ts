@@ -7,8 +7,6 @@ import UserController from "../controllers/user";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    console.log("file", file);
-
     if (file.fieldname === "photo") {
       const dir = "imgs/users/photo";
       if (!fs.existsSync(dir)) {

@@ -30,7 +30,12 @@ class UserController {
       if (isUserExist) {
         throw new ExistingUserError("User already exists");
       }
-      const photoPath = req.file ? req.file.path : null;
+      const photoPath =
+        req.files && req.files["photo"] ? req.files["photo"][0].path : null;
+      const backgroundPath =
+        req.files && req.files["background"]
+          ? req.files["background"][0].path
+          : null;
 
       const user = new Users();
       user.email = email;
@@ -39,6 +44,9 @@ class UserController {
       user.displayName = displayName;
       if (photoPath) {
         user.photo = photoPath;
+      }
+      if (backgroundPath) {
+        user.background = backgroundPath;
       }
 
       await userRepository.save(user);
