@@ -24,11 +24,18 @@ class UserController {
 
     try {
       const { email, password, userName, displayName } = req.body;
-      const isUserExist = await userRepository.findOneBy({
+      const isEmailExist = await userRepository.findOneBy({
         email,
       });
-      if (isUserExist) {
+      const isUserNameExist = await userRepository.findOneBy({
+        userName,
+      });
+
+      if (isEmailExist) {
         throw new ExistingUserError("User already exists");
+      }
+      if (isUserNameExist) {
+        throw new ExistingUserError("This login is already in use");
       }
       const photoPath =
         req.files && req.files["photo"] ? req.files["photo"][0].path : null;
@@ -63,15 +70,15 @@ class UserController {
 
   async signIn(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
+      const { userName, password } = req.body;
       const hashedPassword = hashPassword(password);
 
-      const loginUser = await userRepository.findOneBy({
-        email,
+      const loginUseName = await userRepository.findOneBy({
+        userName,
       });
 
-      if (!loginUser || loginUser?.password !== hashedPassword) {
-        throw new LoginError("Невірний email або пароль");
+      if (!loginUseName || loginUseName?.password !== hashedPassword) {
+        throw new LoginError("Невірний логін або пароль");
       }
 
       const token = jwt.sign(req.body, "secret", {

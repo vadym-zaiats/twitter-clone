@@ -13,61 +13,13 @@ import {
 } from "../services/errorHandler";
 import { type DecodedToken } from "../interfaces/interfaces";
 import { errorHandler } from "../services/errorHandler";
-import { log } from "console";
 
 const postRepository = AppDataSource.getRepository(Posts);
 const userRepository = AppDataSource.getRepository(Users);
 
 class NewsPostController {
-  async getAllPosts(req: Request, res: Response) {
-    try {
-      const skip = parseInt(req.query.skip as string) || 0;
-      const take = parseInt(req.query.take as string) || 100; // усі
-
-      const paginatedPosts = await AppDataSource.manager.find(Posts, {
-        relations: ["author"],
-        skip,
-        take,
-      });
-
-      // return res.status(200).json({ paginatedPosts });
-
-      const allPosts = await AppDataSource.manager.find(Posts);
-
-      if (!allPosts) {
-        throw new NewspostsServiceError(
-          "Помилка на сервері при отриманні усіх постів"
-        );
-      }
-
-      const allPostsLength = allPosts.length;
-
-      return res.status(200).json({ allPosts: paginatedPosts, allPostsLength });
-    } catch (error) {
-      errorHandler(error, req, res);
-    }
-  }
-
-  async getPostById(req: Request, res: Response) {
-    try {
-      const id = parseInt(req.params.id);
-      const post = await postRepository.findOne({
-        where: { id },
-        relations: ["author"],
-      });
-      if (!post) {
-        throw new NewspostsServiceError(`Цього посту не існує. ID ${id} ???`);
-      }
-      return res.status(200).json(post);
-    } catch (error) {
-      errorHandler(error, req, res);
-    }
-  }
-
   async createNewPost(req: Request, res: Response) {
     try {
-      console.log("createNewPost!!! req.body", req.body);
-
       const check: any = checkPostService(req.body);
 
       if (check?.length > 0) {
@@ -144,6 +96,49 @@ class NewsPostController {
       //   });
       // });
 
+      return res.status(200).json(post);
+    } catch (error) {
+      errorHandler(error, req, res);
+    }
+  }
+
+  async getAllPosts(req: Request, res: Response) {
+    try {
+      const skip = parseInt(req.query.skip as string) || 0;
+      const take = parseInt(req.query.take as string) || 100; // усі
+
+      const paginatedPosts = await AppDataSource.manager.find(Posts, {
+        relations: ["author"],
+        skip,
+        take,
+      });
+
+      const allPosts = await AppDataSource.manager.find(Posts);
+
+      if (!allPosts) {
+        throw new NewspostsServiceError(
+          "Помилка на сервері при отриманні усіх постів"
+        );
+      }
+
+      const allPostsLength = allPosts.length;
+
+      return res.status(200).json({ allPosts: paginatedPosts, allPostsLength });
+    } catch (error) {
+      errorHandler(error, req, res);
+    }
+  }
+
+  async getPostById(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id);
+      const post = await postRepository.findOne({
+        where: { id },
+        relations: ["author"],
+      });
+      if (!post) {
+        throw new NewspostsServiceError(`Цього посту не існує. ID ${id} ???`);
+      }
       return res.status(200).json(post);
     } catch (error) {
       errorHandler(error, req, res);
