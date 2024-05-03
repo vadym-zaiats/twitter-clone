@@ -11,6 +11,7 @@ import {
 } from "../services/errorHandler";
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";
+import { sendConfirmationEmail } from "../services/mailer";
 
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
@@ -61,6 +62,8 @@ class UserController {
       const token = jwt.sign({ email, password }, "secret", {
         expiresIn: "1h",
       });
+
+      sendConfirmationEmail(email, "www.google.com");
 
       return res.status(201).json({ token });
     } catch (error) {
