@@ -6,7 +6,6 @@ import {
   Index,
 } from "typeorm";
 import { Posts } from "./Posts";
-import { Favourite } from "./Favourite";
 
 @Entity()
 export class Users {
@@ -37,7 +36,4 @@ export class Users {
 
   @OneToMany(() => Posts, (post) => post.author)
   posts: Posts[];
-
-  @OneToMany(() => Favourite, (favorite) => favorite.user)
-  favorites: Favourite[];
 }
