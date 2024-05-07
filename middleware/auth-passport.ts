@@ -1,10 +1,10 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Strategy } from "passport-http-bearer";
 import { type DecodedToken } from "../interfaces/interfaces";
 import jwt from "jsonwebtoken";
 import { Users } from "../db/entity/User";
 import { AppDataSource } from "../db/data-source";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 const userRepository = AppDataSource.getRepository(Users);
 
@@ -13,7 +13,7 @@ const authMiddleware = async (
   done: (err: Error | null, user?: any) => void
 ) => {
   const decodedData: DecodedToken = await new Promise((resolve, reject) => {
-    jwt.verify(token, "secret", async (err, decoded: any) => {
+    jwt.verify(token, `${process.env.SECRET}`, async (err, decoded: any) => {
       if (err) {
         reject(null);
       } else {
@@ -21,9 +21,9 @@ const authMiddleware = async (
       }
     });
   });
-  const { email, password } = decodedData;
+  const { userName, password } = decodedData;
   const isUserExist = await userRepository.findOneBy({
-    email,
+    userName,
   });
 
   if (!isUserExist) {

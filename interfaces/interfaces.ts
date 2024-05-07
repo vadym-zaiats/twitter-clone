@@ -1,4 +1,4 @@
 export interface DecodedToken {
-  email: string;
+  userName: string;
   password: string;
 }

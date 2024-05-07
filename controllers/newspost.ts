@@ -45,10 +45,11 @@ class NewsPostController {
           }
         );
       });
-      const { email } = decodedData;
+
+      const { userName } = decodedData;
 
       const user = await userRepository.findOneBy({
-        email,
+        userName,
       });
 
       if (!user) {
