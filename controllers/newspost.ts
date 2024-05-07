@@ -196,6 +196,8 @@ class NewsPostController {
       errorHandler(error, req, res);
     }
   }
+
+  async addPostToFavorite(req: Request, res: Response) {}
 }
 
 export default new NewsPostController();

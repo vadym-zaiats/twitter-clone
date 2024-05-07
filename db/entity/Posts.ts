@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import { Users } from "./User";
+import { Favourite } from "./Favourite";
 
 export enum Genre {
   POLITIC = "Politic",
@@ -27,4 +34,7 @@ export class Posts {
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createDate: Date;
+
+  @OneToMany(() => Favourite, (favorite) => favorite.post)
+  favorites: Favourite[];
 }

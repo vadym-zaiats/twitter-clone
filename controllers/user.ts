@@ -102,6 +102,7 @@ class UserController {
     try {
       if (req.user) {
         const decodedData = req.user as { userName: string };
+
         if (!decodedData) {
           throw new LoginError("Token is not valid");
         }
