@@ -8,6 +8,7 @@ import {
   JoinTable,
 } from "typeorm";
 import { Posts } from "./Posts";
+import { FavoritePosts } from "./FavoritePosts";
 
 @Entity()
 export class Users {
@@ -38,4 +39,7 @@ export class Users {
 
   @OneToMany(() => Posts, (post) => post.author)
   posts: Posts[];
+
+  @OneToMany(() => FavoritePosts, (favorite) => favorite.user)
+  favoritePosts: FavoritePosts[];
 }

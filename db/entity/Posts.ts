@@ -3,9 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  ManyToMany,
+  OneToMany,
 } from "typeorm";
 import { Users } from "./Users";
+import { FavoritePosts } from "./FavoritePosts";
 
 export enum Genre {
   POLITIC = "Politic",
@@ -30,6 +31,9 @@ export class Posts {
 
   @ManyToOne(() => Users, (user) => user.posts)
   author: Users;
+
+  @OneToMany(() => FavoritePosts, (favorite) => favorite.post)
+  favoritePosts: FavoritePosts[];
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createDate: Date;
