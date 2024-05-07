@@ -1,7 +1,7 @@
 import { Strategy } from "passport-http-bearer";
 import { type DecodedToken } from "../interfaces/interfaces";
 import jwt from "jsonwebtoken";
-import { Users } from "../db/entity/User";
+import { Users } from "../db/entity/Users";
 import { AppDataSource } from "../db/data-source";
 import * as dotenv from "dotenv";
 dotenv.config();

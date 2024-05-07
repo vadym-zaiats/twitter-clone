@@ -4,6 +4,8 @@ import {
   Column,
   OneToMany,
   Index,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
 import { Posts } from "./Posts";
 

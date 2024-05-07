@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 // import IoService from "../services/io";
 import { checkPostService } from "../validation/posts";
 import { Posts } from "../db/entity/Posts";
-import { Users } from "../db/entity/User";
+import { Users } from "../db/entity/Users";
 import { AppDataSource } from "../db/data-source";
 import {
   ValidationError,
@@ -198,7 +198,9 @@ class NewsPostController {
     }
   }
 
-  async addPostToFavorite(req: Request, res: Response) {}
+  async addPostToFavorite(req: Request, res: Response) {
+    res.send(req.body);
+  }
 }
 
 export default new NewsPostController();

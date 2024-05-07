@@ -2,7 +2,7 @@ import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { AppDataSource } from "../db/data-source";
-import { Users } from "../db/entity/User";
+import { Users } from "../db/entity/Users";
 import { checkUserService, hashPassword } from "../validation/users";
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";

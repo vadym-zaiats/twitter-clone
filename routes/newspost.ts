@@ -52,6 +52,11 @@ class PostRouter {
         passport.authenticate("bearer", { session: false }),
         NewsPostController.deletePost
       );
+
+    this.router.route("/add-to-favorite").post(
+      // passport.authenticate("bearer", { session: false }),
+      NewsPostController.addPostToFavorite
+    );
   }
 }
 
