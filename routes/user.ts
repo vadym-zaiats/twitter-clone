@@ -63,6 +63,8 @@ class UserRouter {
       passport.authenticate("bearer", { session: false }),
       UserController.getUsersPosts
     );
+
+    this.router.post("/password/forget", UserController.passwordForget);
   }
 }
 

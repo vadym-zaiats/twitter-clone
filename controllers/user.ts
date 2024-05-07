@@ -63,7 +63,7 @@ class UserController {
         expiresIn: "1h",
       });
 
-      sendConfirmationEmail(email, "www.google.com");
+      sendConfirmationEmail(email, "http://www.google.com");
 
       return res.status(201).json({ token });
     } catch (error) {
@@ -81,7 +81,7 @@ class UserController {
       });
 
       if (!loginUseName || loginUseName?.password !== hashedPassword) {
-        throw new LoginError("Невірний логін або пароль");
+        throw new LoginError("Invalid username or password");
       }
 
       const token = jwt.sign(req.body, "secret", {
@@ -100,7 +100,7 @@ class UserController {
         const decodedData = req.user as { email: string };
 
         if (!decodedData) {
-          throw new LoginError("токен відсутній або сд сплив");
+          throw new LoginError("Token is not valid");
         }
 
         return res.json(decodedData.email);
@@ -125,6 +125,17 @@ class UserController {
     } catch (error) {
       errorHandler(error, req, res);
     }
+  }
+
+  async passwordForget(req: Request, res: Response) {
+    const { email } = req.body;
+    const userEmail = await userRepository.findOneBy({
+      email,
+    });
+    if (!userEmail) {
+      return res.status(404).json(`User ${email} doesn't exist`);
+    }
+    return res.status(200).json(`Check your email ${email}`);
   }
 }
 
