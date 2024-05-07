@@ -55,7 +55,7 @@ class UserRouter {
     this.router.get(
       "/user",
       passport.authenticate("bearer", { session: false }),
-      UserController.isUser
+      UserController.userData
     );
 
     this.router.get(

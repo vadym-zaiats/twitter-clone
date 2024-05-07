@@ -1,17 +1,18 @@
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/User";
 import { checkUserService, hashPassword } from "../validation/users";
+import { errorHandler } from "../services/errorHandler";
+import { Posts } from "../db/entity/Posts";
+import { sendConfirmationEmail } from "../services/mailer";
 import {
   LoginError,
   ExistingUserError,
   ValidationError,
   NewspostsServiceError,
 } from "../services/errorHandler";
-import { errorHandler } from "../services/errorHandler";
-import { Posts } from "../db/entity/Posts";
-import { sendConfirmationEmail } from "../services/mailer";
 
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
@@ -45,9 +46,11 @@ class UserController {
           ? req.files["background"][0].path
           : null;
 
+      const hashPass = hashPassword(password);
+
       const user = new Users();
       user.email = email;
-      user.password = hashPassword(password);
+      user.password = hashPass;
       user.userName = userName;
       user.displayName = displayName;
       if (photoPath) {
@@ -59,7 +62,7 @@ class UserController {
 
       await userRepository.save(user);
 
-      const token = jwt.sign({ email, password }, "secret", {
+      const token = jwt.sign({ userName, hashPass }, `${process.env.SECRET}`, {
         expiresIn: "1h",
       });
 
@@ -74,6 +77,7 @@ class UserController {
   async signIn(req: Request, res: Response) {
     try {
       const { userName, password } = req.body;
+
       const hashedPassword = hashPassword(password);
 
       const loginUseName = await userRepository.findOneBy({
@@ -84,7 +88,7 @@ class UserController {
         throw new LoginError("Invalid username or password");
       }
 
-      const token = jwt.sign(req.body, "secret", {
+      const token = jwt.sign(req.body, `${process.env.SECRET}`, {
         expiresIn: "1h", // Термін дії токена
       });
 
@@ -94,16 +98,21 @@ class UserController {
     }
   }
 
-  async isUser(req: Request, res: Response) {
+  async userData(req: Request, res: Response) {
     try {
       if (req.user) {
-        const decodedData = req.user as { email: string };
-
+        const decodedData = req.user as { userName: string };
         if (!decodedData) {
           throw new LoginError("Token is not valid");
         }
 
-        return res.json(decodedData.email);
+        const userName = decodedData.userName;
+
+        const userData = await userRepository.findOneBy({
+          userName,
+        });
+
+        return res.json(userData);
       }
     } catch (error) {
       errorHandler(error, req, res);
@@ -132,9 +141,18 @@ class UserController {
     const userEmail = await userRepository.findOneBy({
       email,
     });
+
     if (!userEmail) {
       return res.status(404).json(`User ${email} doesn't exist`);
     }
+
+    const hash = crypto
+      .createHash("sha256")
+      .update(`${email}${Date.now()}${process.env.SECRET}`)
+      .digest("hex");
+
+    const link = `http://localhost:8000/reset-password/${hash}`;
+
     return res.status(200).json(`Check your email ${email}`);
   }
 }

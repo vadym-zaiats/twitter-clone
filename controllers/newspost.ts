@@ -33,13 +33,17 @@ class NewsPostController {
       }
 
       const decodedData: DecodedToken = await new Promise((resolve, reject) => {
-        jwt.verify(token, "secret", async (err, decoded: any) => {
-          if (err) {
-            reject(null);
-          } else {
-            resolve(decoded);
+        jwt.verify(
+          token,
+          `${process.env.SECRET}`,
+          async (err, decoded: any) => {
+            if (err) {
+              reject(null);
+            } else {
+              resolve(decoded);
+            }
           }
-        });
+        );
       });
       const { email } = decodedData;
 
