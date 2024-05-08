@@ -53,10 +53,14 @@ class PostRouter {
         NewsPostController.deletePost
       );
 
-    this.router.route("/add-to-favorite").post(
+    this.router.route("/favorite").post(
       // passport.authenticate("bearer", { session: false }),
       NewsPostController.addPostToFavorite
     );
+
+    this.router.route("/qwe").get((req, res) => {
+      res.send("OK");
+    });
   }
 }
 

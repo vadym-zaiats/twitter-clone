@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { checkPostService } from "../validation/posts";
 import { Posts } from "../db/entity/Posts";
 import { Users } from "../db/entity/Users";
+import { FavoritePosts } from "../db/entity/FavoritePosts";
 import { AppDataSource } from "../db/data-source";
 import {
   ValidationError,
@@ -16,6 +17,7 @@ import { errorHandler } from "../services/errorHandler";
 
 const postRepository = AppDataSource.getRepository(Posts);
 const userRepository = AppDataSource.getRepository(Users);
+const favoriteRepository = AppDataSource.getRepository(FavoritePosts);
 
 class NewsPostController {
   async createNewPost(req: Request, res: Response) {
@@ -142,7 +144,7 @@ class NewsPostController {
         relations: ["author"],
       });
       if (!post) {
-        throw new NewspostsServiceError(`Цього посту не існує. ID ${id} ???`);
+        throw new NewspostsServiceError(`Post with ID ${id} not found`);
       }
       return res.status(200).json(post);
     } catch (error) {
@@ -199,7 +201,53 @@ class NewsPostController {
   }
 
   async addPostToFavorite(req: Request, res: Response) {
-    res.send(req.body);
+    const { userId, postId } = req.body;
+
+    try {
+      // Перевірка чи існує користувач з вказаним userId
+      const post = await postRepository.findOne({
+        where: { id: postId },
+        relations: ["author"],
+      });
+      if (!post) {
+        return res.status(404).json({ error: "Post not found" });
+      }
+
+      // // Перевірка чи існує пост з вказаним postId
+      const user = await userRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Перевірка чи пост вже є в улюблених користувача
+      const existingFavorite = await favoriteRepository.findOne({
+        where: { user, post },
+      });
+
+      if (existingFavorite) {
+        await favoriteRepository.remove(existingFavorite);
+        return res
+          .status(200)
+          .json({ message: "Post removed from favorites successfully" });
+      }
+
+      // Створення нового об'єкту FavoritePosts
+      const favoritePost = new FavoritePosts();
+      favoritePost.user = user;
+      favoritePost.post = post;
+
+      // Збереження нового об'єкту FavoritePosts у базі даних
+      await favoriteRepository.save(favoritePost);
+
+      return res
+        .status(200)
+        .json({ message: "Post added to favorites successfully" });
+    } catch (error) {
+      console.error("Error adding post to favorites:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
   }
 }
 
