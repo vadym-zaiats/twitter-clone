@@ -42,7 +42,7 @@ class PostRouter {
       );
 
     this.router
-      .route("/:id")
+      .route("/post/:id")
       .get(NewsPostController.getPostById)
       .put(
         passport.authenticate("bearer", { session: false }),
@@ -53,14 +53,13 @@ class PostRouter {
         NewsPostController.deletePost
       );
 
-    this.router.route("/favorite").post(
-      // passport.authenticate("bearer", { session: false }),
-      NewsPostController.addPostToFavorite
-    );
-
-    this.router.route("/qwe").get((req, res) => {
-      res.send("OK");
-    });
+    this.router
+      .route("/favorite")
+      .get(NewsPostController.getFavoritePosts)
+      .post(
+        passport.authenticate("bearer", { session: false }),
+        NewsPostController.toggleFavorite
+      );
   }
 }
 

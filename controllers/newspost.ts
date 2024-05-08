@@ -200,7 +200,7 @@ class NewsPostController {
     }
   }
 
-  async addPostToFavorite(req: Request, res: Response) {
+  async toggleFavorite(req: Request, res: Response) {
     const { userId, postId } = req.body;
 
     try {
@@ -246,6 +246,27 @@ class NewsPostController {
         .json({ message: "Post added to favorites successfully" });
     } catch (error) {
       console.error("Error adding post to favorites:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async getFavoritePosts(req: Request, res: Response) {
+    const { userId } = req.body;
+    try {
+      // Знайти користувача за вказаним userId разом з його улюбленими постами
+      const user = await userRepository.findOne({
+        where: { id: userId },
+        relations: ["favoritePosts", "favoritePosts.post"],
+      });
+      // Перевірка, чи знайдено користувача
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Повернути улюблені пости користувача
+      return res.status(200).json(user.favoritePosts);
+    } catch (error) {
+      console.error("Error fetching favorite posts:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }
