@@ -4,7 +4,7 @@ export const validateService = new Validator();
 
 export const postSchema = {
   title: { type: "string", min: 1, max: 50 },
-  text: { type: "string", min: 1, max: 256 },
+  text: { type: "string", min: 1, max: 280 },
 };
 
 export const checkPostService = validateService.compile(postSchema);

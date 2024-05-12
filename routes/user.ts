@@ -55,8 +55,10 @@ class UserRouter {
     this.router.get(
       "/user",
       passport.authenticate("bearer", { session: false }),
-      UserController.userData
+      UserController.getUserData
     );
+
+    this.router.get("/user/search", UserController.getUserDataByUserName);
 
     this.router.get(
       "/user/:userId/posts",

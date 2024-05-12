@@ -98,23 +98,32 @@ class UserController {
     }
   }
 
-  async userData(req: Request, res: Response) {
+  async getUserData(req: Request, res: Response) {
     try {
+      const id = req.body.userId;
+
       if (req.user) {
         const decodedData = req.user as { userName: string };
-
         if (!decodedData) {
           throw new LoginError("Token is not valid");
         }
-
-        const userName = decodedData.userName;
-
-        const userData = await userRepository.findOneBy({
-          userName,
-        });
-
-        return res.json(userData);
       }
+      const userData = await userRepository.findOneBy({
+        id,
+      });
+      return res.json(userData);
+    } catch (error) {
+      errorHandler(error, req, res);
+    }
+  }
+
+  async getUserDataByUserName(req: Request, res: Response) {
+    try {
+      const userName = req.body.search;
+      const userData = await userRepository.findOneBy({
+        userName,
+      });
+      return res.json(userData);
     } catch (error) {
       errorHandler(error, req, res);
     }
