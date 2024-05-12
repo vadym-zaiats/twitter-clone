@@ -1,6 +1,7 @@
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import { Like } from "typeorm";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/Users";
 import { checkUserService, hashPassword } from "../validation/users";
@@ -124,6 +125,27 @@ class UserController {
         userName,
       });
       return res.json(userData);
+    } catch (error) {
+      errorHandler(error, req, res);
+    }
+  }
+
+  async getAllUserInfo(req: Request, res: Response) {
+    try {
+      const searchQuery = req.body.search;
+
+      const userResult = await userRepository.findOneBy({
+        userName: searchQuery,
+      });
+
+      const postResult = await postsRepository.find({
+        where: [
+          { text: Like(`%${searchQuery}%`) },
+          { title: Like(`%${searchQuery}%`) },
+        ],
+      });
+
+      return res.json({ userResult, postResult });
     } catch (error) {
       errorHandler(error, req, res);
     }
