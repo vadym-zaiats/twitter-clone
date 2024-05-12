@@ -47,11 +47,11 @@ class PostRouter {
       .put(
         passport.authenticate("bearer", { session: false }),
         NewsPostController.editPost
+      )
+      .delete(
+        passport.authenticate("bearer", { session: false }),
+        NewsPostController.deletePost
       );
-    // .delete(
-    //   passport.authenticate("bearer", { session: false }),
-    //   NewsPostController.deletePost
-    // );
 
     this.router
       .route("/favorite")

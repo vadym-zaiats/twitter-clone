@@ -181,25 +181,54 @@ class NewsPostController {
     }
   }
 
-  // async deletePost(req: Request, res: Response) {
-  //   const id = parseInt(req.params.id);
-  //   try {
-  //     const post = await postRepository.findOne({ where: { id } });
-  //     if (!post) {
-  //       throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
-  //     }
-  //     await postRepository
-  //       .createQueryBuilder()
-  //       .delete()
-  //       .from(Posts)
-  //       .where("id = :id", { id })
-  //       .execute();
+  async deletePost(req: Request, res: Response) {
+    const id = parseInt(req.params.id);
 
-  //     return res.status(200).json({ message: `Post id: ${id} deleted` });
-  //   } catch (error) {
-  //     errorHandler(error, req, res);
-  //   }
-  // }
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log("token", token);
+
+    if (token) {
+      const decodedData: DecodedToken = await new Promise((resolve, reject) => {
+        jwt.verify(
+          token,
+          `${process.env.SECRET}`,
+          async (err, decoded: any) => {
+            if (err) {
+              reject(null);
+            } else {
+              resolve(decoded);
+            }
+          }
+        );
+      });
+
+      try {
+        const post = await postRepository.findOne({
+          where: { id },
+          relations: ["author"],
+        });
+        if (!post) {
+          throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
+        }
+        if (decodedData.userName === post.author.userName) {
+          await postRepository
+            .createQueryBuilder()
+            .delete()
+            .from(Posts)
+            .where("id = :id", { id })
+            .execute();
+
+          return res.status(200).json({ message: `Post id: ${id} deleted` });
+        } else {
+          return res
+            .status(200)
+            .json({ message: `Post id: ${id} not deleted` });
+        }
+      } catch (error) {
+        errorHandler(error, req, res);
+      }
+    }
+  }
 
   async toggleFavorite(req: Request, res: Response) {
     const { userId, postId } = req.body;
