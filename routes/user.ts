@@ -60,7 +60,10 @@ class UserRouter {
 
     this.router.get("/user/search", UserController.getUserDataByUserName);
 
-    this.router.get("/user/search-user-info", UserController.getAllUserInfo);
+    this.router.get(
+      "/user/search-user-info",
+      UserController.searchUsersAndPosts
+    );
 
     this.router.get(
       "/user/:userId/posts",

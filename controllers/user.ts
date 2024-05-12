@@ -130,7 +130,7 @@ class UserController {
     }
   }
 
-  async getAllUserInfo(req: Request, res: Response) {
+  async searchUsersAndPosts(req: Request, res: Response) {
     try {
       const searchQuery = req.body.search;
 

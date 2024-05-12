@@ -2,6 +2,7 @@
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
 // import IoService from "../services/io";
+import { Like } from "typeorm";
 import { checkPostService } from "../validation/posts";
 import { Posts } from "../db/entity/Posts";
 import { Users } from "../db/entity/Users";
@@ -180,25 +181,25 @@ class NewsPostController {
     }
   }
 
-  async deletePost(req: Request, res: Response) {
-    const id = parseInt(req.params.id);
-    try {
-      const post = await postRepository.findOne({ where: { id } });
-      if (!post) {
-        throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
-      }
-      await postRepository
-        .createQueryBuilder()
-        .delete()
-        .from(Posts)
-        .where("id = :id", { id })
-        .execute();
+  // async deletePost(req: Request, res: Response) {
+  //   const id = parseInt(req.params.id);
+  //   try {
+  //     const post = await postRepository.findOne({ where: { id } });
+  //     if (!post) {
+  //       throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
+  //     }
+  //     await postRepository
+  //       .createQueryBuilder()
+  //       .delete()
+  //       .from(Posts)
+  //       .where("id = :id", { id })
+  //       .execute();
 
-      return res.status(200).json({ message: `Post id: ${id} deleted` });
-    } catch (error) {
-      errorHandler(error, req, res);
-    }
-  }
+  //     return res.status(200).json({ message: `Post id: ${id} deleted` });
+  //   } catch (error) {
+  //     errorHandler(error, req, res);
+  //   }
+  // }
 
   async toggleFavorite(req: Request, res: Response) {
     const { userId, postId } = req.body;
@@ -268,6 +269,23 @@ class NewsPostController {
     } catch (error) {
       console.error("Error fetching favorite posts:", error);
       return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async searchPost(req: Request, res: Response) {
+    try {
+      const searchQuery = req.body.search;
+
+      const postResult = await postRepository.find({
+        where: [
+          { text: Like(`%${searchQuery}%`) },
+          { title: Like(`%${searchQuery}%`) },
+        ],
+      });
+
+      return res.json(postResult);
+    } catch (error) {
+      errorHandler(error, req, res);
     }
   }
 }
