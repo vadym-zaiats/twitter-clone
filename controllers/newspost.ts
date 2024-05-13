@@ -11,9 +11,7 @@ import { AppDataSource } from "../db/data-source";
 import {
   ValidationError,
   NewspostsServiceError,
-  LoginError,
 } from "../services/errorHandler";
-import { type DecodedToken } from "../interfaces/interfaces";
 import { errorHandler } from "../services/errorHandler";
 import { DecodeToken } from "../services/decodeToken";
 
@@ -23,91 +21,77 @@ const favoriteRepository = AppDataSource.getRepository(FavoritePosts);
 
 class NewsPostController {
   async createNewPost(req: Request, res: Response) {
-    try {
-      const check: any = checkPostService(req.body);
+    const token = req.headers.authorization?.split(" ")[1];
 
-      if (check?.length > 0) {
-        throw new ValidationError(check[0].message);
+    if (token) {
+      try {
+        const check: any = checkPostService(req.body);
+
+        if (check?.length > 0) {
+          throw new ValidationError(check[0].message);
+        }
+
+        const decodedData = await DecodeToken(token);
+
+        const { userName } = decodedData;
+
+        const user = await userRepository.findOneBy({
+          userName,
+        });
+
+        if (!user) {
+          throw new Error("Користувача з таким email не знайдено");
+        }
+
+        const picturePath = req.file ? req.file.path : null;
+
+        const { title, text } = req.body;
+        const post = new Posts();
+        post.title = title;
+        post.text = text;
+        post.author = user;
+        if (picturePath) {
+          post.picture = picturePath;
+        }
+
+        // const alertUsers = await userRepository.find({
+        //   where: {
+        //     sendNotification: true,
+        //   },
+        // });
+
+        // const filteredAlertUsers = alertUsers.filter(
+        //   (alertUser) => alertUser.email !== user.email
+        // );
+
+        // const messages = filteredAlertUsers
+        //   .map((alertUser) => {
+        //     if (alertUser.notificationChannel) {
+        //       return {
+        //         userEmail: alertUser.email,
+        //         channel: alertUser.notificationChannel,
+        //       };
+        //     }
+        //     return null;
+        //   })
+        //   .filter((message) => message !== null);
+
+        // console.log("messages", messages);
+
+        await postRepository.save(post);
+
+        // SOCKET IO
+        // messages.forEach((message) => {
+        //   IoService.io.emit("newpost", {
+        //     userEmail: message?.userEmail,
+        //     log: message?.channel,
+        //   });
+        // });
+
+        return res.status(200).json(post);
+      } catch (error) {
+        errorHandler(error, req, res);
       }
-
-      const token = req.headers.authorization?.split(" ")[1];
-
-      if (!token) {
-        throw new LoginError(check[0].message);
-      }
-
-      const decodedData: DecodedToken = await new Promise((resolve, reject) => {
-        jwt.verify(
-          token,
-          `${process.env.SECRET}`,
-          async (err, decoded: any) => {
-            if (err) {
-              reject(null);
-            } else {
-              resolve(decoded);
-            }
-          }
-        );
-      });
-
-      const { userName } = decodedData;
-
-      const user = await userRepository.findOneBy({
-        userName,
-      });
-
-      if (!user) {
-        throw new Error("Користувача з таким email не знайдено");
-      }
-
-      const picturePath = req.file ? req.file.path : null;
-
-      const { title, text } = req.body;
-      const post = new Posts();
-      post.title = title;
-      post.text = text;
-      post.author = user;
-      if (picturePath) {
-        post.picture = picturePath;
-      }
-
-      // const alertUsers = await userRepository.find({
-      //   where: {
-      //     sendNotification: true,
-      //   },
-      // });
-
-      // const filteredAlertUsers = alertUsers.filter(
-      //   (alertUser) => alertUser.email !== user.email
-      // );
-
-      // const messages = filteredAlertUsers
-      //   .map((alertUser) => {
-      //     if (alertUser.notificationChannel) {
-      //       return {
-      //         userEmail: alertUser.email,
-      //         channel: alertUser.notificationChannel,
-      //       };
-      //     }
-      //     return null;
-      //   })
-      //   .filter((message) => message !== null);
-
-      // console.log("messages", messages);
-
-      await postRepository.save(post);
-
-      // SOCKET IO
-      // messages.forEach((message) => {
-      //   IoService.io.emit("newpost", {
-      //     userEmail: message?.userEmail,
-      //     log: message?.channel,
-      //   });
-      // });
-
-      return res.status(200).json(post);
-    } catch (error) {
-      errorHandler(error, req, res);
     }
   }
 
