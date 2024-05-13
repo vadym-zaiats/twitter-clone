@@ -70,10 +70,12 @@ class UserRouter {
       UserController.searchUsersAndPosts
     );
 
-    this.router.get(
-      "/user/get-user-subscriptions",
-      UserController.getSubsUsersPosts
-    );
+    this.router
+      .route("/user/get-user-subscriptions")
+      .get(
+        passport.authenticate("bearer", { session: false }),
+        UserController.getSubsUsersPosts
+      );
 
     this.router.get(
       "/user/:userId/posts",
