@@ -71,6 +71,11 @@ class UserRouter {
     );
 
     this.router.get(
+      "/user/get-user-subscriptions",
+      UserController.getSubsUsersPosts
+    );
+
+    this.router.get(
       "/user/:userId/posts",
       passport.authenticate("bearer", { session: false }),
       UserController.getUsersPosts

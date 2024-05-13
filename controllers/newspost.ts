@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Request, type Response } from "express";
-import jwt from "jsonwebtoken";
 // import IoService from "../services/io";
 import { Like } from "typeorm";
 import { checkPostService } from "../validation/posts";
