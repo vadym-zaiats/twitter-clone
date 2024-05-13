@@ -162,23 +162,35 @@ class NewsPostController {
 
     const id = parseInt(req.params.id);
     const { title, text } = req.body;
-    try {
-      const post = await postRepository.findOne({ where: { id } });
-      if (!post) {
-        throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
-      }
-      if (title !== undefined) {
-        post.title = title;
-      }
-      if (text !== undefined) {
-        post.text = text;
-      }
-      await postRepository.save(post);
 
-      // Повернення оновленого посту
-      return res.status(200).json(post);
-    } catch (error) {
-      errorHandler(error, req, res);
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (token) {
+      const decodedData = await DecodeToken(token);
+
+      try {
+        const post = await postRepository.findOne({
+          where: { id },
+          relations: ["author"],
+        });
+        if (!post) {
+          throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
+        }
+        if (decodedData.userName === post.author.userName) {
+          if (title !== undefined) {
+            post.title = title;
+          }
+          if (text !== undefined) {
+            post.text = text;
+          }
+          await postRepository.save(post);
+
+          // Повернення оновленого посту
+          return res.status(200).json(post);
+        }
+      } catch (error) {
+        errorHandler(error, req, res);
+      }
     }
   }
 
