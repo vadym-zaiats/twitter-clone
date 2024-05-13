@@ -15,6 +15,7 @@ import {
 } from "../services/errorHandler";
 import { type DecodedToken } from "../interfaces/interfaces";
 import { errorHandler } from "../services/errorHandler";
+import { DecodeToken } from "../services/decodeToken";
 
 const postRepository = AppDataSource.getRepository(Posts);
 const userRepository = AppDataSource.getRepository(Users);
@@ -185,22 +186,9 @@ class NewsPostController {
     const id = parseInt(req.params.id);
 
     const token = req.headers.authorization?.split(" ")[1];
-    console.log("token", token);
 
     if (token) {
-      const decodedData: DecodedToken = await new Promise((resolve, reject) => {
-        jwt.verify(
-          token,
-          `${process.env.SECRET}`,
-          async (err, decoded: any) => {
-            if (err) {
-              reject(null);
-            } else {
-              resolve(decoded);
-            }
-          }
-        );
-      });
+      const decodedData = await DecodeToken(token);
 
       try {
         const post = await postRepository.findOne({
@@ -261,19 +249,19 @@ class NewsPostController {
         return res
           .status(200)
           .json({ message: "Post removed from favorites successfully" });
+      } else {
+        // Створення нового об'єкту FavoritePosts
+        const favoritePost = new FavoritePosts();
+        favoritePost.user = user;
+        favoritePost.post = post;
+
+        // Збереження нового об'єкту FavoritePosts у базі даних
+        await favoriteRepository.save(favoritePost);
+
+        return res
+          .status(200)
+          .json({ message: "Post added to favorites successfully" });
       }
-
-      // Створення нового об'єкту FavoritePosts
-      const favoritePost = new FavoritePosts();
-      favoritePost.user = user;
-      favoritePost.post = post;
-
-      // Збереження нового об'єкту FavoritePosts у базі даних
-      await favoriteRepository.save(favoritePost);
-
-      return res
-        .status(200)
-        .json({ message: "Post added to favorites successfully" });
     } catch (error) {
       console.error("Error adding post to favorites:", error);
       return res.status(500).json({ error: "Internal server error" });
