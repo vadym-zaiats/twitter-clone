@@ -4,11 +4,10 @@ import {
   Column,
   OneToMany,
   Index,
-  ManyToMany,
-  JoinTable,
 } from "typeorm";
 import { Posts } from "./Posts";
 import { FavoritePosts } from "./FavoritePosts";
+import { Subscriptions } from "./Subscriptions";
 
 @Entity()
 export class Users {
@@ -42,4 +41,10 @@ export class Users {
 
   @OneToMany(() => FavoritePosts, (favorite) => favorite.user)
   favoritePosts: FavoritePosts[];
+
+  @OneToMany(() => Subscriptions, (subscription) => subscription.subscriber)
+  subscriptions: Subscriptions[];
+
+  @OneToMany(() => Subscriptions, (subscription) => subscription.subscribedTo)
+  subscribers: Subscriptions[];
 }

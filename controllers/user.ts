@@ -1,9 +1,9 @@
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
-import crypto from "crypto";
 import { Like } from "typeorm";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/Users";
+import { Subscriptions } from "../db/entity/Subscriptions";
 import { checkUserService, hashPassword } from "../validation/users";
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";
@@ -17,6 +17,7 @@ import {
 
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
+const subscriptionRepository = AppDataSource.getRepository(Subscriptions);
 
 class UserController {
   async signUp(req: Request, res: Response) {
@@ -90,7 +91,7 @@ class UserController {
       }
 
       const token = jwt.sign(req.body, `${process.env.SECRET}`, {
-        expiresIn: "10s", // Термін дії токена
+        expiresIn: "24h", // Термін дії токена
       });
 
       return res.status(200).json({ token });
@@ -168,25 +169,67 @@ class UserController {
     }
   }
 
-  async passwordForget(req: Request, res: Response) {
-    const { email } = req.body;
-    const userEmail = await userRepository.findOneBy({
-      email,
-    });
+  async toggleSubscription(req: Request, res: Response) {
+    const { userId, targetUserId } = req.body;
 
-    if (!userEmail) {
-      return res.status(404).json(`User ${email} doesn't exist`);
+    try {
+      const subscriber = await userRepository.findOneBy({
+        id: userId,
+      });
+      if (!subscriber) {
+        return res.status(404).send("Subscriber not found");
+      }
+      const targetUser = await userRepository.findOneBy({
+        id: targetUserId,
+      });
+      if (!targetUser) {
+        return res.status(404).send("Target user not found");
+      }
+
+      const existingSubscription = await subscriptionRepository.findOne({
+        where: { subscriber, subscribedTo: targetUser },
+      });
+
+      if (existingSubscription) {
+        await subscriptionRepository.delete({
+          subscriber: userId,
+          subscribedTo: targetUserId,
+        });
+        return res.status(200).send("Unsubscribed successfully");
+      }
+
+      const subscription = new Subscriptions();
+      subscription.subscriber = subscriber;
+      subscription.subscribedTo = targetUser;
+
+      await subscriptionRepository.save(subscription);
+
+      return res.status(200).send("Subscribed successfully");
+    } catch (error) {
+      console.error("Error toggle subscription:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
-
-    const hash = crypto
-      .createHash("sha256")
-      .update(`${email}${Date.now()}${process.env.SECRET}`)
-      .digest("hex");
-
-    const link = `http://localhost:8000/reset-password/${hash}`;
-
-    return res.status(200).json(`Check your email ${email}`);
   }
+
+  // async passwordForget(req: Request, res: Response) {
+  //   const { email } = req.body;
+  //   const userEmail = await userRepository.findOneBy({
+  //     email,
+  //   });
+
+  //   if (!userEmail) {
+  //     return res.status(404).json(`User ${email} doesn't exist`);
+  //   }
+
+  //   const hash = crypto
+  //     .createHash("sha256")
+  //     .update(`${email}${Date.now()}${process.env.SECRET}`)
+  //     .digest("hex");
+
+  //   const link = `http://localhost:8000/reset-password/${hash}`;
+
+  //   return res.status(200).json(`Check your email ${email}`);
+  // }
 }
 
 export default new UserController();

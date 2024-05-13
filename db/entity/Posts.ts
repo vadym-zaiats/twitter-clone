@@ -8,12 +8,12 @@ import {
 import { Users } from "./Users";
 import { FavoritePosts } from "./FavoritePosts";
 
-export enum Genre {
-  POLITIC = "Politic",
-  BUSINESS = "Business",
-  SPORT = "Sport",
-  OTHER = "Other",
-}
+// export enum Genre {
+//   POLITIC = "Politic",
+//   BUSINESS = "Business",
+//   SPORT = "Sport",
+//   OTHER = "Other",
+// }
 
 @Entity()
 export class Posts {

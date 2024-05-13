@@ -3,19 +3,19 @@ import * as dotenv from "dotenv";
 import { Users } from "../db/entity/Users";
 import { AppDataSource } from "../db/data-source";
 import { DecodeToken } from "../services/decodeToken";
-import { LoginError } from "../services/errorHandler";
 dotenv.config();
 
 const userRepository = AppDataSource.getRepository(Users);
 
 const authMiddleware = async (
   token: string,
-  done: (err: Error | null, user?: any) => void
+  done: (err: Error | null, user: any) => void
 ) => {
   const decodedData = await DecodeToken(token);
 
   if (!decodedData) {
-    throw new LoginError("Token is not valid");
+    done(null, null);
+    return;
   }
 
   const { userName, password } = decodedData;

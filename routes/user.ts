@@ -52,11 +52,16 @@ class UserRouter {
 
     this.router.post("/login", UserController.signIn);
 
-    this.router.get(
-      "/user",
-      passport.authenticate("bearer", { session: false }),
-      UserController.getUserData
-    );
+    this.router
+      .route("/user")
+      .get(
+        passport.authenticate("bearer", { session: false }),
+        UserController.getUserData
+      )
+      .post(
+        passport.authenticate("bearer", { session: false }),
+        UserController.toggleSubscription
+      );
 
     this.router.get("/user/search", UserController.getUserDataByUserName);
 
@@ -71,7 +76,7 @@ class UserRouter {
       UserController.getUsersPosts
     );
 
-    this.router.post("/password/forget", UserController.passwordForget);
+    // this.router.post("/password/forget", UserController.passwordForget);
   }
 }
 
