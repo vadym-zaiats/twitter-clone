@@ -279,22 +279,29 @@ class NewsPostController {
 
   async getFavoritePosts(req: Request, res: Response) {
     const { userId } = req.body;
-    try {
-      // Знайти користувача за вказаним userId разом з його улюбленими постами
-      const user = await userRepository.findOne({
-        where: { id: userId },
-        relations: ["favoritePosts", "favoritePosts.post"],
-      });
-      // Перевірка, чи знайдено користувача
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
+    const token = req.headers.authorization?.split(" ")[1];
 
-      // Повернути улюблені пости користувача
-      return res.status(200).json(user.favoritePosts);
-    } catch (error) {
-      console.error("Error fetching favorite posts:", error);
-      return res.status(500).json({ error: "Internal server error" });
+    if (token) {
+      const decodedData = await DecodeToken(token);
+
+      try {
+        // Знайти користувача за вказаним userId разом з його улюбленими постами
+        const user = await userRepository.findOne({
+          where: { id: userId },
+          relations: ["favoritePosts", "favoritePosts.post"],
+        });
+        // Перевірка, чи знайдено користувача
+        if (!user) {
+          return res.status(404).json({ error: "User not found" });
+        }
+        if (decodedData.userName === user.userName) {
+          return res.status(200).json(user.favoritePosts);
+        }
+        // Повернути улюблені пости користувача
+      } catch (error) {
+        console.error("Error fetching favorite posts:", error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
     }
   }
 

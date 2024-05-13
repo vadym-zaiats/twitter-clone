@@ -55,7 +55,10 @@ class PostRouter {
 
     this.router
       .route("/favorite")
-      .get(NewsPostController.getFavoritePosts)
+      .get(
+        passport.authenticate("bearer", { session: false }),
+        NewsPostController.getFavoritePosts
+      )
       .post(
         passport.authenticate("bearer", { session: false }),
         NewsPostController.toggleFavorite
