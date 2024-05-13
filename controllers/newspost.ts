@@ -11,6 +11,7 @@ import { AppDataSource } from "../db/data-source";
 import {
   ValidationError,
   NewspostsServiceError,
+  LoginError,
 } from "../services/errorHandler";
 import { errorHandler } from "../services/errorHandler";
 import { DecodeToken } from "../services/decodeToken";
@@ -32,6 +33,10 @@ class NewsPostController {
         }
 
         const decodedData = await DecodeToken(token);
+
+        if (!decodedData) {
+          return res.status(401).json({ message: "Invalid or expired token" });
+        }
 
         const { userName } = decodedData;
 
@@ -144,6 +149,10 @@ class NewsPostController {
     if (token) {
       const decodedData = await DecodeToken(token);
 
+      if (!decodedData) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
+
       const id = parseInt(req.params.id);
 
       try {
@@ -186,6 +195,10 @@ class NewsPostController {
     if (token) {
       const decodedData = await DecodeToken(token);
 
+      if (!decodedData) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
+
       try {
         const post = await postRepository.findOne({
           where: { id },
@@ -221,6 +234,10 @@ class NewsPostController {
 
     if (token) {
       const decodedData = await DecodeToken(token);
+
+      if (!decodedData) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
 
       try {
         // Перевірка чи існує користувач з вказаним userId
@@ -280,20 +297,21 @@ class NewsPostController {
     if (token) {
       const decodedData = await DecodeToken(token);
 
+      if (!decodedData) {
+        return res.status(401).json({ message: "Invalid or expired token" });
+      }
+
       try {
-        // Знайти користувача за вказаним userId разом з його улюбленими постами
         const user = await userRepository.findOne({
           where: { id: userId },
           relations: ["favoritePosts", "favoritePosts.post"],
         });
-        // Перевірка, чи знайдено користувача
         if (!user) {
           return res.status(404).json({ error: "User not found" });
         }
         if (decodedData.userName === user.userName) {
           return res.status(200).json(user.favoritePosts);
         }
-        // Повернути улюблені пости користувача
       } catch (error) {
         console.error("Error fetching favorite posts:", error);
         return res.status(500).json({ error: "Internal server error" });

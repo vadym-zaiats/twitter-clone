@@ -45,7 +45,7 @@ class PostRouter {
       .route("/post/:id")
       .get(NewsPostController.getPostById)
       .put(
-        passport.authenticate("bearer", { session: false }),
+        // passport.authenticate("bearer", { session: false }),
         NewsPostController.editPost
       )
       .delete(

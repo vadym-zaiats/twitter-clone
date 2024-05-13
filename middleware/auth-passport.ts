@@ -1,9 +1,9 @@
 import { Strategy } from "passport-http-bearer";
-import { type DecodedToken } from "../interfaces/interfaces";
-import jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
 import { Users } from "../db/entity/Users";
 import { AppDataSource } from "../db/data-source";
-import * as dotenv from "dotenv";
+import { DecodeToken } from "../services/decodeToken";
+import { LoginError } from "../services/errorHandler";
 dotenv.config();
 
 const userRepository = AppDataSource.getRepository(Users);
@@ -12,15 +12,12 @@ const authMiddleware = async (
   token: string,
   done: (err: Error | null, user?: any) => void
 ) => {
-  const decodedData: DecodedToken = await new Promise((resolve, reject) => {
-    jwt.verify(token, `${process.env.SECRET}`, async (err, decoded: any) => {
-      if (err) {
-        reject(null);
-      } else {
-        resolve(decoded);
-      }
-    });
-  });
+  const decodedData = await DecodeToken(token);
+
+  if (!decodedData) {
+    throw new LoginError("Token is not valid");
+  }
+
   const { userName, password } = decodedData;
   const isUserExist = await userRepository.findOneBy({
     userName,

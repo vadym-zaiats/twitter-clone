@@ -27,6 +27,13 @@ export class ExistingUserError extends Error {
   }
 }
 
+// export class TokenExpiredError extends Error {
+//   constructor(message: string) {
+//     super(message);
+//     this.name = "TokenExpiredError";
+//   }
+// }
+
 export const errorHandler = (err: Error, req: Request, res: Response) => {
   if (err.name === "ValidationError") {
     return res.status(400).send(`Помилка валідації: ${err.message}`);

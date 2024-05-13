@@ -90,7 +90,7 @@ class UserController {
       }
 
       const token = jwt.sign(req.body, `${process.env.SECRET}`, {
-        expiresIn: "1h", // Термін дії токена
+        expiresIn: "10s", // Термін дії токена
       });
 
       return res.status(200).json({ token });
