@@ -155,18 +155,12 @@ class NewsPostController {
   }
 
   async editPost(req: Request, res: Response) {
-    const check: any = checkPostService(req.body);
-    if (check?.length > 0) {
-      throw new ValidationError(check[0].message);
-    }
-
-    const id = parseInt(req.params.id);
-    const { title, text } = req.body;
-
     const token = req.headers.authorization?.split(" ")[1];
 
     if (token) {
       const decodedData = await DecodeToken(token);
+
+      const id = parseInt(req.params.id);
 
       try {
         const post = await postRepository.findOne({
@@ -177,6 +171,12 @@ class NewsPostController {
           throw new NewspostsServiceError(`Post id: ${id} doesn't exist`);
         }
         if (decodedData.userName === post.author.userName) {
+          const check: any = checkPostService(req.body);
+          if (check?.length > 0) {
+            throw new ValidationError(check[0].message);
+          }
+          const { title, text } = req.body;
+
           if (title !== undefined) {
             post.title = title;
           }
