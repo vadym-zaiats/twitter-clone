@@ -248,6 +248,29 @@ class UserController {
     }
   }
 
+  async getUsersSubs(req: Request, res: Response) {
+    const { userId } = req.body;
+
+    try {
+      const user = await userRepository.findOne({
+        where: { id: userId },
+        relations: ["subscriptions", "subscriptions.subscribedTo"],
+      });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const subscriptions = user.subscriptions
+        .map((subscription) => subscription)
+        .flat();
+
+      return res.status(200).json(subscriptions);
+    } catch (error) {
+      console.error("Error fetching favorite posts:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
   // async passwordForget(req: Request, res: Response) {
   //   const { email } = req.body;
   //   const userEmail = await userRepository.findOneBy({

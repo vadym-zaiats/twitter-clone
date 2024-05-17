@@ -73,10 +73,17 @@ class UserRouter {
     );
 
     this.router
-      .route("/user/get-user-subscriptions")
+      .route("/user/get-user-subscriptions-posts")
       .get(
         passport.authenticate("bearer", { session: false }),
         UserController.getSubsUsersPosts
+      );
+
+    this.router
+      .route("/user/get-user-subscriptions")
+      .get(
+        passport.authenticate("bearer", { session: false }),
+        UserController.getUsersSubs
       );
 
     this.router.get(
