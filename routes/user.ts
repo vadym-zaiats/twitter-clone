@@ -56,12 +56,14 @@ class UserRouter {
       .route("/user")
       .get(
         passport.authenticate("bearer", { session: false }),
-        UserController.getUserData
+        UserController.getMyData
       )
       .post(
         passport.authenticate("bearer", { session: false }),
         UserController.toggleSubscription
       );
+
+    this.router.route("/user-info").get(UserController.getUserData);
 
     this.router.get("/user/search", UserController.getUserDataByUserName);
 

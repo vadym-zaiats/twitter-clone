@@ -100,7 +100,7 @@ class UserController {
     }
   }
 
-  async getUserData(req: Request, res: Response) {
+  async getMyData(req: Request, res: Response) {
     try {
       const id = req.body.userId;
 
@@ -110,6 +110,20 @@ class UserController {
           throw new LoginError("Token is not valid");
         }
       }
+
+      const userData = await userRepository.findOneBy({
+        id,
+      });
+
+      return res.json(userData);
+    } catch (error) {
+      errorHandler(error, req, res);
+    }
+  }
+
+  async getUserData(req: Request, res: Response) {
+    try {
+      const id = req.body.userId;
       const userData = await userRepository.findOneBy({
         id,
       });
