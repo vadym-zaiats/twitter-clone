@@ -1,7 +1,7 @@
 import { type Request, type Response } from "express";
 // import IoService from "../services/io";
 import { Like } from "typeorm";
-import { checkPostService } from "../validation/posts";
+import { checkPostService } from "../services/validation/posts";
 import { Posts } from "../db/entity/Posts";
 import { Users } from "../db/entity/Users";
 import { FavoritePosts } from "../db/entity/FavoritePosts";

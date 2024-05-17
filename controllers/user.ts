@@ -4,16 +4,11 @@ import { Like } from "typeorm";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/Users";
 import { Subscriptions } from "../db/entity/Subscriptions";
-import { checkUserService, hashPassword } from "../validation/users";
+import { checkUserService, hashPassword } from "../services/validation/users";
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";
 import { sendConfirmationEmail } from "../services/mailer";
-import {
-  LoginError,
-  ExistingUserError,
-  ValidationError,
-  NewspostsServiceError,
-} from "../services/errorHandler";
+import { NewspostsServiceError } from "../services/errorHandler";
 
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
@@ -23,7 +18,7 @@ class UserController {
   async signUp(req: Request, res: Response) {
     const check: any = checkUserService(req.body);
     if (check?.length > 0) {
-      throw new ValidationError(check[0].message);
+      return res.json(check[0].message);
     }
 
     try {
@@ -36,10 +31,14 @@ class UserController {
       });
 
       if (isEmailExist) {
-        throw new ExistingUserError("User already exists");
+        return res
+          .status(409)
+          .json({ message: "This email is already in use" });
       }
       if (isUserNameExist) {
-        throw new ExistingUserError("This login is already in use");
+        return res
+          .status(409)
+          .json({ message: "This username is already in use" });
       }
       const photoPath =
         req.files && req.files["photo"] ? req.files["photo"][0].path : null;
@@ -87,7 +86,7 @@ class UserController {
       });
 
       if (!loginUseName || loginUseName?.password !== hashedPassword) {
-        throw new LoginError("Invalid username or password");
+        return res.status(401).json({ message: "Invalid login or password" });
       }
 
       const token = jwt.sign(req.body, `${process.env.SECRET}`, {
@@ -100,22 +99,84 @@ class UserController {
     }
   }
 
-  async getMyData(req: Request, res: Response) {
-    try {
-      const id = req.body.userId;
+  async editMyData(req: Request, res: Response) {
+    const check: any = checkUserService(req.body);
+    if (check?.length > 0) {
+      return res.json(check[0].message);
+    }
 
+    try {
       if (req.user) {
         const decodedData = req.user as { userName: string };
         if (!decodedData) {
-          throw new LoginError("Token is not valid");
+          return res.status(401).json({ message: "Invalid or expired token" });
         }
+        const myData = await userRepository.findOneBy({
+          userName: decodedData.userName,
+        });
+        if (!myData) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        const { email, userName, displayName, password } = req.body;
+
+        const isEmailExist = await userRepository.findOneBy({
+          email,
+        });
+
+        if (isEmailExist) {
+          return res
+            .status(409)
+            .json({ message: "This email is already in use" });
+        }
+
+        const isUserNameExist = await userRepository.findOneBy({
+          userName,
+        });
+
+        if (isUserNameExist) {
+          return res
+            .status(409)
+            .json({ message: "This username is already in use" });
+        }
+
+        const hashPass = hashPassword(password);
+
+        if (email) {
+          myData.email = email;
+        }
+        if (userName) {
+          myData.userName = userName;
+        }
+        if (displayName) {
+          myData.displayName = displayName;
+        }
+        if (password) {
+          myData.password = hashPass;
+        }
+
+        await userRepository.save(myData);
+
+        return res.json(myData);
       }
+    } catch (error) {
+      errorHandler(error, req, res);
+    }
+  }
 
-      const userData = await userRepository.findOneBy({
-        id,
-      });
+  async getMyData(req: Request, res: Response) {
+    try {
+      if (req.user) {
+        const decodedData = req.user as { userName: string };
+        if (!decodedData) {
+          return res.status(401).json({ message: "Invalid or expired token" });
+        }
+        const userData = await userRepository.findOneBy({
+          userName: decodedData.userName,
+        });
 
-      return res.json(userData);
+        return res.json(userData);
+      }
     } catch (error) {
       errorHandler(error, req, res);
     }

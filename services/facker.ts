@@ -3,7 +3,7 @@ import { Users } from "../db/entity/Users";
 import { Posts, Genre } from "../db/entity/Posts";
 import { AppDataSource } from "../db/data-source";
 import { type DataSource } from "typeorm";
-import { hashPassword } from "../validation/users";
+import { hashPassword } from "./validation/users";
 
 // create users
 export const generateUsers = (count: number): Users[] => {

@@ -61,6 +61,14 @@ class UserRouter {
       .post(
         passport.authenticate("bearer", { session: false }),
         UserController.toggleSubscription
+      )
+      .put(
+        passport.authenticate("bearer", { session: false }),
+        upload.fields([
+          { name: "photo", maxCount: 1 },
+          { name: "background", maxCount: 1 },
+        ]),
+        UserController.editMyData
       );
 
     this.router.route("/user-info").get(UserController.getUserData);
