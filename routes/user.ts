@@ -95,6 +95,12 @@ class UserRouter {
         passport.authenticate("bearer", { session: false }),
         UserController.getUsersSubs
       );
+    this.router
+      .route("/user/get-user-followers")
+      .get(
+        passport.authenticate("bearer", { session: false }),
+        UserController.getUsersFollowers
+      );
 
     this.router.get(
       "/user/:userId/posts",

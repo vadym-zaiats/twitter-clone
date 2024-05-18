@@ -4,6 +4,7 @@ import { Like } from "typeorm";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/Users";
 import { Subscriptions } from "../db/entity/Subscriptions";
+import { Followers } from "../db/entity/Followers";
 import { checkUserService, hashPassword } from "../services/validation/users";
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";
@@ -13,6 +14,7 @@ import { NewspostsServiceError } from "../services/errorHandler";
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
 const subscriptionRepository = AppDataSource.getRepository(Subscriptions);
+const followersRepository = AppDataSource.getRepository(Followers);
 
 class UserController {
   async signUp(req: Request, res: Response) {
@@ -262,22 +264,26 @@ class UserController {
       }
 
       const existingSubscription = await subscriptionRepository.findOne({
-        where: { subscriber, subscribedTo: targetUser },
+        where: { user: subscriber, subscribed: targetUser },
       });
 
       if (existingSubscription) {
         await subscriptionRepository.delete({
-          subscriber: userId,
-          subscribedTo: targetUserId,
+          user: userId,
+          subscribed: targetUserId,
         });
         return res.status(200).send("Unsubscribed successfully");
       }
 
       const subscription = new Subscriptions();
-      subscription.subscriber = subscriber;
-      subscription.subscribedTo = targetUser;
+      subscription.user = subscriber;
+      subscription.subscribed = targetUser;
+      const followers = new Followers();
+      followers.user = targetUser;
+      followers.following = subscriber;
 
       await subscriptionRepository.save(subscription);
+      await followersRepository.save(followers);
 
       return res.status(200).send("Subscribed successfully");
     } catch (error) {
@@ -299,7 +305,7 @@ class UserController {
       }
 
       const posts = user.subscriptions
-        .map((subscription) => subscription.subscribedTo.posts)
+        .map((subscription) => subscription.subscribed.posts)
         .flat();
 
       return res.status(200).json(posts);
@@ -322,10 +328,33 @@ class UserController {
       }
 
       const subscriptions = user.subscriptions
-        .map((subscription) => subscription.subscribedTo)
+        .map((subscription) => subscription.subscribed)
         .flat();
 
       return res.status(200).json(subscriptions);
+    } catch (error) {
+      console.error("Error fetching favorite posts:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  }
+
+  async getUsersFollowers(req: Request, res: Response) {
+    const { userId } = req.body;
+
+    try {
+      const user = await userRepository.findOne({
+        where: { id: userId },
+        relations: ["followers.following"],
+      });
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const followers = user.followers
+        .map((follower) => follower.following)
+        .flat();
+
+      return res.status(200).json(followers);
     } catch (error) {
       console.error("Error fetching favorite posts:", error);
       return res.status(500).json({ error: "Internal server error" });

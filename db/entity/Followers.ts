@@ -2,13 +2,13 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
 import { Users } from "./Users";
 
 @Entity()
-export class Subscriptions {
+export class Followers {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Users, (user) => user.subscribers)
+  @ManyToOne(() => Users, (user) => user.followers)
   user: Users;
 
-  @ManyToOne(() => Users, (user) => user.subscriptions)
-  subscribed: Users;
+  @ManyToOne(() => Users, (user) => user.following)
+  following: Users;
 }

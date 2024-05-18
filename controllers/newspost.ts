@@ -36,13 +36,20 @@ class NewsPostController {
 
         const { userName } = decodedData;
 
-        const user = await userRepository.findOneBy({
-          userName,
+        const user = await userRepository.findOne({
+          where: { userName },
+          // relations: ["subscriptions", "subscriptions.subscriber"],
         });
 
         if (!user) {
           throw new Error("Користувача з таким email не знайдено");
         }
+
+        // const subscriptions = user.subscribers
+        //   .map((subscription) => subscription.subscriber)
+        //   .flat();
+
+        // console.log(subscriptions);
 
         const picturePath = req.file ? req.file.path : null;
 
@@ -54,12 +61,6 @@ class NewsPostController {
         if (picturePath) {
           post.picture = picturePath;
         }
-
-        // const alertUsers = await userRepository.find({
-        //   where: {
-        //     sendNotification: true,
-        //   },
-        // });
 
         // const filteredUsersPostUpdate = alertUsers.filter(
         //   (alertUser) => alertUser.email !== user.email
