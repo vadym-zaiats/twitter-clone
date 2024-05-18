@@ -322,7 +322,7 @@ class UserController {
       }
 
       const subscriptions = user.subscriptions
-        .map((subscription) => subscription)
+        .map((subscription) => subscription.subscribedTo)
         .flat();
 
       return res.status(200).json(subscriptions);

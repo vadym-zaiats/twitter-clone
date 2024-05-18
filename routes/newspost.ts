@@ -4,6 +4,7 @@ import passport from "passport";
 import multer from "multer";
 import fs from "fs";
 import NewsPostController from "../controllers/newspost";
+import { generateUniqueFilename } from "../services/uniqueFileName";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -15,7 +16,8 @@ const storage = multer.diskStorage({
   },
 
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    const uniqueFilename = generateUniqueFilename(file.originalname);
+    cb(null, uniqueFilename);
   },
 });
 

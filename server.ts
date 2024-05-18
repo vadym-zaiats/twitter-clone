@@ -1,9 +1,9 @@
-// import IoService from "./services/io";
 // import swaggerUi from "swagger-ui-express";
+// import swaggerJSDoc from "swagger-jsdoc";
+import IoService from "./services/io";
 import express, { type Express } from "express";
 import cors from "cors";
 import passport from "passport";
-import swaggerJSDoc from "swagger-jsdoc";
 import * as dotenv from "dotenv";
 import newspostsConfigs from "./routes/newspost";
 import userConfigs from "./routes/user";
@@ -12,18 +12,18 @@ import { bearerStrategy } from "./middleware/auth-passport";
 import { AppDataSource } from "./db/data-source";
 import "reflect-metadata";
 
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-    info: {
-      title: "Passport Auth Api",
-      version: "0.0.1",
-    },
-  },
-  apis: ["./routes/*.ts"],
-};
+// const swaggerOptions = {
+//   definition: {
+//     openapi: "3.0.0",
+//     info: {
+//       title: "Passport Auth Api",
+//       version: "0.0.1",
+//     },
+//   },
+//   apis: ["./routes/*.ts"],
+// };
 
-const swaggerDocument = swaggerJSDoc(swaggerOptions);
+// const swaggerDocument = swaggerJSDoc(swaggerOptions);
 
 class Server {
   app: Express;
@@ -31,7 +31,7 @@ class Server {
 
   constructor() {
     this.app = express();
-    this.PORT = Number(process.env.PORT) || 8000;
+    this.PORT = Number(process.env.SERVER_PORT) || 8000;
 
     dotenv.config();
     this.configureMiddleware();
@@ -75,7 +75,7 @@ class Server {
   }
 
   public start(): void {
-    // IoService.ws();
+    IoService.ws();
     this.app.listen(this.PORT, () => {
       console.log(`Server is running on port ${this.PORT}`);
     });

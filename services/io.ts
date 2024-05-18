@@ -1,4 +1,6 @@
 import { Server } from "socket.io";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 export class IoService {
   private static instance: IoService;
@@ -6,7 +8,7 @@ export class IoService {
   private WS_PORT: number;
 
   constructor() {
-    this.WS_PORT = Number(process.env.PORT) || 8001;
+    this.WS_PORT = Number(process.env.IO_PORT);
     this.io = new Server({ cors: { origin: "*" } });
   }
 

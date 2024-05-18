@@ -1,17 +1,17 @@
-import { type Request, type Response } from "express";
 // import IoService from "../services/io";
+import { type Request, type Response } from "express";
 import { Like } from "typeorm";
 import { checkPostService } from "../services/validation/posts";
 import { Posts } from "../db/entity/Posts";
 import { Users } from "../db/entity/Users";
 import { FavoritePosts } from "../db/entity/FavoritePosts";
 import { AppDataSource } from "../db/data-source";
+import { errorHandler } from "../services/errorHandler";
+import { DecodeToken } from "../services/decodeToken";
 import {
   ValidationError,
   NewspostsServiceError,
 } from "../services/errorHandler";
-import { errorHandler } from "../services/errorHandler";
-import { DecodeToken } from "../services/decodeToken";
 
 const postRepository = AppDataSource.getRepository(Posts);
 const userRepository = AppDataSource.getRepository(Users);
@@ -61,11 +61,11 @@ class NewsPostController {
         //   },
         // });
 
-        // const filteredAlertUsers = alertUsers.filter(
+        // const filteredUsersPostUpdate = alertUsers.filter(
         //   (alertUser) => alertUser.email !== user.email
         // );
 
-        // const messages = filteredAlertUsers
+        // const messages = filteredUsersPostUpdate
         //   .map((alertUser) => {
         //     if (alertUser.notificationChannel) {
         //       return {
