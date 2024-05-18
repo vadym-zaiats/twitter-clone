@@ -1,4 +1,4 @@
-// import IoService from "../services/io";
+import IoService from "../services/io";
 import { type Request, type Response } from "express";
 import { Like } from "typeorm";
 import { checkPostService } from "../services/validation/posts";
@@ -38,18 +38,12 @@ class NewsPostController {
 
         const user = await userRepository.findOne({
           where: { userName },
-          // relations: ["subscriptions", "subscriptions.subscriber"],
+          relations: ["followers.following"],
         });
 
         if (!user) {
           throw new Error("Користувача з таким email не знайдено");
         }
-
-        // const subscriptions = user.subscribers
-        //   .map((subscription) => subscription.subscriber)
-        //   .flat();
-
-        // console.log(subscriptions);
 
         const picturePath = req.file ? req.file.path : null;
 
@@ -62,33 +56,16 @@ class NewsPostController {
           post.picture = picturePath;
         }
 
-        // const filteredUsersPostUpdate = alertUsers.filter(
-        //   (alertUser) => alertUser.email !== user.email
-        // );
-
-        // const messages = filteredUsersPostUpdate
-        //   .map((alertUser) => {
-        //     if (alertUser.notificationChannel) {
-        //       return {
-        //         userEmail: alertUser.email,
-        //         channel: alertUser.notificationChannel,
-        //       };
-        //     }
-        //     return null;
-        //   })
-        //   .filter((message) => message !== null);
-
-        // console.log("messages", messages);
-
         await postRepository.save(post);
 
+        const followers = user.followers
+          .map((follower) => follower.following)
+          .flat();
+
         // SOCKET IO
-        // messages.forEach((message) => {
-        //   IoService.io.emit("newpost", {
-        //     userEmail: message?.userEmail,
-        //     log: message?.channel,
-        //   });
-        // });
+        followers.forEach(() => {
+          IoService.io.emit("newpost", post);
+        });
 
         return res.status(200).json(post);
       } catch (error) {
