@@ -77,9 +77,9 @@ class UserController {
     }
   }
 
-  async signIn(req: Request, res: Response) {
+  async logIn(req: Request, res: Response) {
     try {
-      const { userName, password } = req.body;
+      const { userName, password, rememberMe } = req.body;
 
       const hashedPassword = hashPassword(password);
 
@@ -91,14 +91,24 @@ class UserController {
         return res.status(401).json({ message: "Invalid login or password" });
       }
 
-      const token = jwt.sign(req.body, `${process.env.SECRET}`, {
-        expiresIn: "24h", // Термін дії токена
-      });
+      const tokenExpiry = rememberMe ? "30d" : "2h";
+
+      const token = jwt.sign(
+        { userName, password: hashedPassword },
+        `${process.env.SECRET}`,
+        {
+          expiresIn: tokenExpiry,
+        }
+      );
 
       return res.status(200).json({ token });
     } catch (error) {
       errorHandler(error, req, res);
     }
+  }
+
+  async signOut(req: Request, res: Response) {
+    return res.status(200).json({ message: "Logout successful" });
   }
 
   async editMyData(req: Request, res: Response) {

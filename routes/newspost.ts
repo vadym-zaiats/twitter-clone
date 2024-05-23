@@ -5,6 +5,7 @@ import multer from "multer";
 import fs from "fs";
 import NewsPostController from "../controllers/newspost";
 import { generateUniqueFilename } from "../services/uniqueFileName";
+import { tokenDecoderMiddleware } from "../middleware/tokenDecoder.middleware";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -38,6 +39,7 @@ class PostRouter {
       .route("/")
       .get(NewsPostController.getAllPosts)
       .post(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         upload.single("picture"),
         NewsPostController.createNewPost
@@ -47,10 +49,12 @@ class PostRouter {
       .route("/post/:id")
       .get(NewsPostController.getPostById)
       .put(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         NewsPostController.editPost
       )
       .delete(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         NewsPostController.deletePost
       );
@@ -58,10 +62,12 @@ class PostRouter {
     this.router
       .route("/favorite")
       .get(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         NewsPostController.getFavoritePosts
       )
       .post(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         NewsPostController.toggleFavorite
       );

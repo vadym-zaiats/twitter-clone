@@ -8,7 +8,7 @@ import * as dotenv from "dotenv";
 import newspostsConfigs from "./routes/newspost";
 import userConfigs from "./routes/user";
 import { errorHandler } from "./services/errorHandler";
-import { bearerStrategy } from "./middleware/auth-passport";
+import { bearerStrategy } from "./services/auth-passport";
 import { AppDataSource } from "./db/data-source";
 import "reflect-metadata";
 
@@ -82,5 +82,4 @@ class Server {
   }
 }
 
-const server = new Server();
-server.start();
+new Server().start();

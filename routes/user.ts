@@ -5,6 +5,7 @@ import multer from "multer";
 import fs from "fs";
 import UserController from "../controllers/user";
 import { generateUniqueFilename } from "../services/uniqueFileName";
+import { tokenDecoderMiddleware } from "../middleware/tokenDecoder.middleware";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -52,19 +53,24 @@ class UserRouter {
       UserController.signUp
     );
 
-    this.router.post("/login", UserController.signIn);
+    this.router.route("/login").post(UserController.logIn);
+
+    this.router.route("/signout").get(UserController.signOut);
 
     this.router
       .route("/user")
       .get(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         UserController.getMyData
       )
       .post(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         UserController.toggleSubscription
       )
       .put(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         upload.fields([
           { name: "photo", maxCount: 1 },
@@ -85,6 +91,7 @@ class UserRouter {
     this.router
       .route("/user/get-user-subscriptions-posts")
       .get(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         UserController.getSubsUsersPosts
       );
@@ -92,18 +99,21 @@ class UserRouter {
     this.router
       .route("/user/get-user-subscriptions")
       .get(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         UserController.getUsersSubs
       );
     this.router
       .route("/user/get-user-followers")
       .get(
+        tokenDecoderMiddleware,
         passport.authenticate("bearer", { session: false }),
         UserController.getUsersFollowers
       );
 
     this.router.get(
       "/user/:userId/posts",
+      tokenDecoderMiddleware,
       passport.authenticate("bearer", { session: false }),
       UserController.getUsersPosts
     );

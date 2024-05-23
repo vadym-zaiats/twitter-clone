@@ -46,7 +46,6 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "@types/redis": "^4.0.11",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -66,7 +65,6 @@
     "passport": "^0.7.0",
     "passport-http-bearer": "^1.0.1",
     "random-js": "^2.1.0",
-    "redis": "^4.6.13",
     "reflect-metadata": "^0.2.1",
     "socket.io": "^4.7.5",
     "typeorm": "^0.3.20",
