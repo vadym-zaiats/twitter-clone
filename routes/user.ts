@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import passport from "passport";
 import multer from "multer";
 import fs from "fs";
+import cookieParser from "cookie-parser";
 import UserController from "../controllers/user";
 import { generateUniqueFilename } from "../services/uniqueFileName";
 import { tokenDecoderMiddleware } from "../middleware/tokenDecoder.middleware";
@@ -54,8 +55,6 @@ class UserRouter {
     );
 
     this.router.route("/login").post(UserController.logIn);
-
-    this.router.route("/signout").get(UserController.signOut);
 
     this.router
       .route("/user")

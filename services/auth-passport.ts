@@ -2,7 +2,7 @@ import { Strategy } from "passport-http-bearer";
 import * as dotenv from "dotenv";
 import { Users } from "../db/entity/Users";
 import { AppDataSource } from "../db/data-source";
-import { DecodeToken } from "./decodeToken";
+import { DecodeToken } from "../services/decodeToken";
 dotenv.config();
 
 const userRepository = AppDataSource.getRepository(Users);

@@ -107,10 +107,6 @@ class UserController {
     }
   }
 
-  async signOut(req: Request, res: Response) {
-    return res.status(200).json({ message: "Logout successful" });
-  }
-
   async editMyData(req: Request, res: Response) {
     const check: any = checkUserService(req.body);
     if (check?.length > 0) {
