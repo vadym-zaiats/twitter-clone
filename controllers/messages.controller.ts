@@ -10,8 +10,14 @@ class MessagesController {
   async sendMessage(req: Request, res: Response) {
     const { senderId, receiverId, content } = req.body;
 
-    const sender = await userRepository.findOne(senderId);
-    const receiver = await userRepository.findOne(receiverId);
+    console.log("senderId:", senderId);
+    console.log("receiverId:", receiverId);
+
+    const sender = await userRepository.findOneBy({ id: senderId });
+    const receiver = await userRepository.findOneBy({ id: receiverId });
+
+    console.log("Sender:", sender);
+    console.log("Receiver:", receiver);
 
     if (!sender || !receiver) {
       return res.status(404).json({ message: "User not found" });
@@ -28,15 +34,17 @@ class MessagesController {
   }
 
   async getMessages(req: Request, res: Response) {
-    // const { userId1, userId2 } = req.params;
-    // const messages = await messageRepository.find({
-    //   where: [
-    //     { sender: userId1, receiver: userId2 },
-    //     { sender: userId2, receiver: userId1 },
-    //   ],
-    //   order: { timestamp: "ASC" },
-    // });
-    // return res.status(200).json(messages);
+    const { userId1, userId2 } = req.params;
+
+    const messages = await messageRepository.find({
+      where: [
+        { sender: { id: Number(userId1) }, receiver: { id: Number(userId2) } },
+        { sender: { id: Number(userId2) }, receiver: { id: Number(userId1) } },
+      ],
+      order: { timestamp: "ASC" },
+    });
+
+    return res.status(200).json(messages);
   }
 }
 

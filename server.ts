@@ -11,7 +11,6 @@ import MessagesRouter from "./routes/messages.route";
 import { errorHandler } from "./services/errorHandler";
 import { bearerStrategy } from "./services/auth-passport";
 import { AppDataSource } from "./db/data-source";
-
 import "reflect-metadata";
 
 // const swaggerOptions = {
@@ -65,7 +64,7 @@ class Server {
     this.app.use("/api/", UserRouter);
     this.app.use("/api/auth/", UserRouter);
     this.app.use("/api/newsposts/", PostRouter);
-    this.app.use("/api/messages", MessagesRouter);
+    this.app.use("/api/messages/", MessagesRouter);
     // this.app.use(
     //   "/api/docs",
     //   swaggerUi.serve,
