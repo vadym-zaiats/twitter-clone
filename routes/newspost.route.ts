@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 import passport from "passport";
 import multer from "multer";
 import fs from "fs";
-import NewsPostController from "../controllers/newspost";
+import NewsPostController from "../controllers/newspost.controller";
 import { generateUniqueFilename } from "../services/uniqueFileName";
 import { tokenDecoderMiddleware } from "../middleware/tokenDecoder.middleware";
 

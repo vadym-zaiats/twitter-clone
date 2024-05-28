@@ -4,7 +4,7 @@ import passport from "passport";
 import multer from "multer";
 import fs from "fs";
 import cookieParser from "cookie-parser";
-import UserController from "../controllers/user";
+import UserController from "../controllers/user.controller";
 import { generateUniqueFilename } from "../services/uniqueFileName";
 import { tokenDecoderMiddleware } from "../middleware/tokenDecoder.middleware";
 

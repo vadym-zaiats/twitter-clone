@@ -9,7 +9,7 @@ import { Posts } from "./Posts";
 import { FavoritePosts } from "./FavoritePosts";
 import { Subscriptions } from "./Subscriptions";
 import { Followers } from "./Followers";
-
+import { Message } from "./Message";
 @Entity()
 export class Users {
   @PrimaryGeneratedColumn()
@@ -34,9 +34,6 @@ export class Users {
   @Column({ nullable: true })
   background: string;
 
-  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-  createDate: Date;
-
   @Column({ type: "varchar", nullable: true })
   resetPasswordToken: string | null;
 
@@ -60,4 +57,13 @@ export class Users {
 
   @OneToMany(() => Followers, (follower) => follower.following)
   following: Followers[];
+
+  @OneToMany(() => Message, (message) => message.sender)
+  sentMessages: Message[];
+
+  @OneToMany(() => Message, (message) => message.receiver)
+  receivedMessages: Message[];
+
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createDate: Date;
 }
