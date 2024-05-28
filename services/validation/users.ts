@@ -11,7 +11,14 @@ export const userSchema = {
   confirmPassword: { type: "equal", field: "password" },
 };
 
+export const newPassSchema = {
+  newPassword: { type: "string", min: 6 },
+  confirmNewPassword: { type: "equal", field: "newPassword" },
+};
+
 export const checkUserService = validateService.compile(userSchema);
+
+export const checkNewPassService = validateService.compile(newPassSchema);
 
 export function hashPassword(password: string) {
   return crypto.createHash("sha256").update(password).digest("hex");

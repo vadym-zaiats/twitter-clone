@@ -117,7 +117,8 @@ class UserRouter {
       UserController.getUsersPosts
     );
 
-    // this.router.post("/password/forget", UserController.passwordForget);
+    this.router.post("/password/forget", UserController.forgotPassword);
+    this.router.post("/password/reset/:token", UserController.resetPassword);
   }
 }
 

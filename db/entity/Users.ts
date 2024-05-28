@@ -4,7 +4,6 @@ import {
   Column,
   OneToMany,
   Index,
-  ManyToOne,
 } from "typeorm";
 import { Posts } from "./Posts";
 import { FavoritePosts } from "./FavoritePosts";
@@ -37,6 +36,12 @@ export class Users {
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   createDate: Date;
+
+  @Column({ type: "varchar", nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type: "bigint", nullable: true })
+  resetPasswordExpires: number | null;
 
   @OneToMany(() => Posts, (post) => post.author)
   posts: Posts[];

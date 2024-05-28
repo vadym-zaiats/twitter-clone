@@ -1,15 +1,23 @@
 import { type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
-import { Like } from "typeorm";
+import { Like, MoreThan } from "typeorm";
 import { AppDataSource } from "../db/data-source";
 import { Users } from "../db/entity/Users";
 import { Subscriptions } from "../db/entity/Subscriptions";
 import { Followers } from "../db/entity/Followers";
-import { checkUserService, hashPassword } from "../services/validation/users";
+import {
+  checkUserService,
+  checkNewPassService,
+  hashPassword,
+} from "../services/validation/users";
 import { errorHandler } from "../services/errorHandler";
 import { Posts } from "../db/entity/Posts";
-import { sendConfirmationEmail } from "../services/mailer";
+import {
+  sendConfirmationEmail,
+  sendResetPasswordEmail,
+} from "../services/mailer";
 import { NewspostsServiceError } from "../services/errorHandler";
+import crypto from "crypto";
 
 const userRepository = AppDataSource.getRepository(Users);
 const postsRepository = AppDataSource.getRepository(Posts);
@@ -367,25 +375,80 @@ class UserController {
     }
   }
 
-  // async passwordForget(req: Request, res: Response) {
-  //   const { email } = req.body;
-  //   const userEmail = await userRepository.findOneBy({
-  //     email,
-  //   });
+  async forgotPassword(req: Request, res: Response) {
+    const { email } = req.body;
 
-  //   if (!userEmail) {
-  //     return res.status(404).json(`User ${email} doesn't exist`);
-  //   }
+    try {
+      const user = await userRepository.findOne({ where: { email } });
 
-  //   const hash = crypto
-  //     .createHash("sha256")
-  //     .update(`${email}${Date.now()}${process.env.SECRET}`)
-  //     .digest("hex");
+      if (!user) {
+        return res.status(404).json({
+          message: "Користувача з такою електронною адресою не знайдено",
+        });
+      }
 
-  //   const link = `http://localhost:8000/reset-password/${hash}`;
+      const token = crypto.createHash("sha256").digest("hex");
 
-  //   return res.status(200).json(`Check your email ${email}`);
-  // }
+      user.resetPasswordToken = token;
+      user.resetPasswordExpires = Date.now() + 3600000; // 1 година
+
+      await userRepository.save(user);
+
+      const resetLink = `${req.protocol}://${req.get(
+        "host"
+      )}/reset-password/${token}`;
+
+      sendResetPasswordEmail(user.email, resetLink);
+
+      res.status(200).json({
+        message:
+          "Посилання для відновлення пароля було відправлено на вашу електронну адресу",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Сталася помилка, будь ласка, спробуйте ще раз пізніше",
+      });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const check: any = checkNewPassService(req.body);
+    if (check?.length > 0) {
+      return res.json(check[0].message);
+    }
+
+    try {
+      const user = await userRepository.findOne({
+        where: {
+          resetPasswordToken: token,
+          resetPasswordExpires: MoreThan(Date.now()), // Використання оператора MoreThan
+        },
+      });
+
+      if (!user) {
+        return res.status(400).json({
+          message:
+            "Токен для скидання пароля недійсний або строк його дії минув",
+        });
+      }
+
+      const hashedPassword = hashPassword(newPassword);
+      user.password = hashedPassword;
+      user.resetPasswordToken = null;
+      user.resetPasswordExpires = null;
+
+      await userRepository.save(user);
+
+      res.status(200).json({ message: "Пароль успішно змінено" });
+    } catch (error) {
+      res.status(500).json({
+        message: "Сталася помилка, будь ласка, спробуйте ще раз пізніше",
+      });
+    }
+  }
 }
 
 export default new UserController();

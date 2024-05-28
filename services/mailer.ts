@@ -35,3 +35,26 @@ export const sendConfirmationEmail = (
     }
   });
 };
+
+export const sendResetPasswordEmail = (
+  email: string,
+  resetLink: string
+): void => {
+  const mailOptions: nodemailer.SendMailOptions = {
+    from: process.env.MAILER_EMAIL,
+    to: email,
+    subject: "Відновлення пароля",
+    html: `<p>Будь ласка, перейдіть за <a href="${resetLink}">посиланням</a>, щоб відновити свій пароль.</p>`,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Помилка під час відправлення електронного листа:", error);
+    } else {
+      console.log(
+        "Електронний лист для відновлення пароля було відправлено:",
+        info.response
+      );
+    }
+  });
+};
