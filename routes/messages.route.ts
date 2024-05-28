@@ -4,7 +4,7 @@ import passport from "passport";
 import messagesController from "../controllers/messages.controller";
 import { tokenDecoderMiddleware } from "../middleware/tokenDecoder.middleware";
 
-class UserRouter {
+class MessagesRouter {
   router: Router;
 
   constructor() {
@@ -29,4 +29,4 @@ class UserRouter {
   }
 }
 
-export default new UserRouter().router;
+export default new MessagesRouter().router;

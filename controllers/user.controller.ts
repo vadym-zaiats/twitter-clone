@@ -77,7 +77,8 @@ class UserController {
         expiresIn: "1h",
       });
 
-      sendConfirmationEmail(email, "http://www.google.com");
+      process.env.TYPE === "PROD" &&
+        sendConfirmationEmail(email, "http://www.google.com");
 
       return res.status(201).json({ token });
     } catch (error) {

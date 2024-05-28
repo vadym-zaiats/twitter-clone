@@ -5,11 +5,13 @@ import express, { type Express } from "express";
 import cors from "cors";
 import passport from "passport";
 import * as dotenv from "dotenv";
-import newspostsConfigs from "./routes/newspost.route";
-import userConfigs from "./routes/user.route";
+import PostRouter from "./routes/newspost.route";
+import UserRouter from "./routes/user.route";
+import MessagesRouter from "./routes/messages.route";
 import { errorHandler } from "./services/errorHandler";
 import { bearerStrategy } from "./services/auth-passport";
 import { AppDataSource } from "./db/data-source";
+
 import "reflect-metadata";
 
 // const swaggerOptions = {
@@ -60,9 +62,10 @@ class Server {
   }
 
   private configureRoutes(): void {
-    this.app.use("/api/", userConfigs);
-    this.app.use("/api/auth/", userConfigs);
-    this.app.use("/api/newsposts/", newspostsConfigs);
+    this.app.use("/api/", UserRouter);
+    this.app.use("/api/auth/", UserRouter);
+    this.app.use("/api/newsposts/", PostRouter);
+    this.app.use("/api/messages", MessagesRouter);
     // this.app.use(
     //   "/api/docs",
     //   swaggerUi.serve,
