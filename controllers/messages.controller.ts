@@ -10,14 +10,8 @@ class MessagesController {
   async sendMessage(req: Request, res: Response) {
     const { senderId, receiverId, content } = req.body;
 
-    console.log("senderId:", senderId);
-    console.log("receiverId:", receiverId);
-
     const sender = await userRepository.findOneBy({ id: senderId });
     const receiver = await userRepository.findOneBy({ id: receiverId });
-
-    console.log("Sender:", sender);
-    console.log("Receiver:", receiver);
 
     if (!sender || !receiver) {
       return res.status(404).json({ message: "User not found" });
