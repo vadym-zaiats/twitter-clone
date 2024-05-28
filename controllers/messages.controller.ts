@@ -7,7 +7,7 @@ const userRepository = AppDataSource.getRepository(Users);
 const messageRepository = AppDataSource.getRepository(Message);
 
 class MessagesController {
-  static async sendMessage(req: Request, res: Response) {
+  async sendMessage(req: Request, res: Response) {
     const { senderId, receiverId, content } = req.body;
 
     const sender = await userRepository.findOne(senderId);
@@ -27,7 +27,7 @@ class MessagesController {
     return res.status(201).json(message);
   }
 
-  static async getMessages(req: Request, res: Response) {
+  async getMessages(req: Request, res: Response) {
     // const { userId1, userId2 } = req.params;
     // const messages = await messageRepository.find({
     //   where: [
