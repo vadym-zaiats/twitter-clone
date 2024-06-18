@@ -15,17 +15,21 @@ class MessagesRouter {
   private config(): void {
     this.router.use(bodyParser.json());
 
-    this.router.route("/send").post(
-      // tokenDecoderMiddleware,
-      // passport.authenticate("bearer", { session: false }),
-      messagesController.sendMessage
-    );
+    this.router
+      .route("/send")
+      .post(
+        tokenDecoderMiddleware,
+        passport.authenticate("bearer", { session: false }),
+        messagesController.sendMessage
+      );
 
-    this.router.route("/:userId1/:userId2").get(
-      // tokenDecoderMiddleware,
-      // passport.authenticate("bearer", { session: false }),
-      messagesController.getMessages
-    );
+    this.router
+      .route("/:userId1/:userId2")
+      .get(
+        tokenDecoderMiddleware,
+        passport.authenticate("bearer", { session: false }),
+        messagesController.getMessages
+      );
   }
 }
 

@@ -336,7 +336,7 @@ class UserController {
     try {
       const user = await userRepository.findOne({
         where: { id: userId },
-        relations: ["subscriptions", "subscriptions.subscribedTo"],
+        relations: ["subscriptions", "subscriptions.subscribed"],
       });
       if (!user) {
         return res.status(404).json({ error: "User not found" });
